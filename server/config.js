@@ -564,11 +564,11 @@ module.exports = Object.freeze({
 
   /** Shown to the visitor when a limit trips. In William's voice, not HTTP-speak. */
   MESSAGES: Object.freeze({
-    hourlyLimit: "That's a lot of questions in one go — give it an hour and ask me more. If you'd rather just talk, book time with me through the ⋮ menu at the bottom left.",
-    dailyLimit:  "You've hit my daily limit for one visitor. Happy to keep going tomorrow — or book time with me through the ⋮ menu at the bottom left.",
-    globalCap:   "I'm getting more questions than usual today and have paused to keep the bill sane. Try tomorrow, or book time with me through the ⋮ menu at the bottom left.",
+    hourlyLimit: "That's a lot of questions in one go — give it an hour and ask me more. If you'd rather just talk, book time with me using the calendar icon on this page.",
+    dailyLimit:  "You've hit my daily limit for one visitor. Happy to keep going tomorrow — or book time with me using the calendar icon on this page.",
+    globalCap:   "I'm getting more questions than usual today and have paused to keep the bill sane. Try tomorrow, or book time with me using the calendar icon on this page.",
   }),
 
   /** Used when the LLM fails validation after every retry. */
-  FALLBACK: "Something went wrong on my end answering that. Try rephrasing, or book time with me through the ⋮ menu at the bottom left.",
+  FALLBACK: "Something went wrong on my end answering that. Try rephrasing, or book time with me using the calendar icon on this page.",
 });
