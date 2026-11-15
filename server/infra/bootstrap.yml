@@ -167,12 +167,18 @@ Resources:
 
               # Run the release script on it. Restricted to this one instance
               # by tag, and to the one AWS-owned shell document.
+              # Two statements, not one. A Condition in a statement applies to every
+              # Resource in it, and AWS-RunShellScript is AWS's document: it carries
+              # no App tag, so a single statement with the tag condition is refused
+              # every time ("no identity-based policy allows the ssm:SendCommand").
               - Sid: RunTheReleaseScript
                 Effect: Allow
                 Action: ssm:SendCommand
-                Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}::document/AWS-RunShellScript"
-                  - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}::document/AWS-RunShellScript"
+              - Sid: OnlyOnThisAppsInstance
+                Effect: Allow
+                Action: ssm:SendCommand
+                Resource: !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
                 Condition:
                   StringEquals: { "ssm:resourceTag/App": "personal-page" }
 
