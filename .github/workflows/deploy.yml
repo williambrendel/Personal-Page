@@ -65,31 +65,17 @@ jobs:
       #
       # Inline is reliable because there is nothing to misfire. The token is a
       # repo secret so Actions masks it in logs, and the runner is ephemeral.
-      - name: Authenticate to the private llms repo
+      # One token per library, not one token for all of them: a token wide
+      # enough to rewrite every williambrendel/ URL is a token that can read
+      # every private repo, and this deploy only installs llms. The other two
+      # are passed so that adding a dependency needs no change here; they are
+      # optional, and cannot fail a deploy that does not use them.
+      - name: Authenticate to the private library repos
         env:
           LLMS_READ_TOKEN: ${{ secrets.LLMS_READ_TOKEN }}
-        run: |
-          git config --global url."https://x-access-token:${LLMS_READ_TOKEN}@github.com/williambrendel/".insteadOf "ssh://git@github.com/williambrendel/"
-          git config --global --add url."https://x-access-token:${LLMS_READ_TOKEN}@github.com/williambrendel/".insteadOf "git@github.com:williambrendel/"
-          # Fail HERE, not three minutes later inside npm ci. Print git's own
-          # error rather than swallowing it: an exit code alone cannot tell
-          # an auth failure from a network or TLS one, and guessing from it
-          # cost three runs. Actions masks the token, so the URL in any error
-          # appears as ***.
-          echo "git $(git --version | awk '{print $3}')"
-          if OUT=$(git ls-remote "https://x-access-token:${LLMS_READ_TOKEN}@github.com/williambrendel/llms.git" HEAD 2>&1); then
-            echo "llms is reachable: $(echo "$OUT" | head -1 | cut -c1-16)"
-          else
-            echo "::error::cannot read williambrendel/llms — git said:"
-            echo "$OUT"
-            # Does the token work at all, outside git? Separates "bad token"
-            # from "git cannot reach github".
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' \
-                     -H "Authorization: Bearer ${LLMS_READ_TOKEN}" \
-                     https://api.github.com/repos/williambrendel/llms)
-            echo "api.github.com/repos/williambrendel/llms -> HTTP $CODE (200 means the token is fine and git is the problem)"
-            exit 1
-          fi
+          AUTH_READ_TOKEN: ${{ secrets.AUTH_READ_TOKEN }}
+          NATIVE_WRAPPER_READ_TOKEN: ${{ secrets.NATIVE_WRAPPER_READ_TOKEN }}
+        run: .github/scripts/library-tokens.sh
 
       - name: Install
         working-directory: server
