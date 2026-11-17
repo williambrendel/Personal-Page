@@ -2,6 +2,7 @@
 
 require("dotenv").config({ quiet: true });
 const path = require("path");
+const { VEC_DTYPE } = require("llms/src/VectorStore/Document/constants");
 const Pricing = require("llms/src/claude/Pricing");
 
 const ROOT = __dirname;
@@ -122,6 +123,35 @@ module.exports = Object.freeze({
 
   MARKDOWNS: path.join(ROOT, "data/markdowns"),
   DATASET:   path.join(ROOT, "data/vectorized-dataset"),
+
+  /**
+   * The dtype `npm run ingest` writes vectors at.
+   *
+   * int16, matching the store on disk. This has to be set, not left to the
+   * default, because of how the gap would otherwise show up: a float32
+   * document in an int16 store is perfectly readable, so nothing would fail.
+   * Re-ingesting one markdown file would quietly write float32 back, and the
+   * conversion would come undone one file at a time with no symptom except a
+   * store that stopped getting smaller.
+   *
+   * int16 and not int8, measured on this corpus with llms
+   * scripts/verifyMigration.js at the production floor of 0.70, 300 real
+   * queries:
+   *
+   *     dtype   same k        swapped pairs   decisions   top result   store
+   *     int16   300/300       1               99.7%       100%         12.5 MB
+   *     int8    272/300       476             50.0%       100%          6.3 MB
+   *
+   * int8 keeps the single best answer but changes how many rows come back on
+   * roughly one query in ten, which changes the context the model answers
+   * from. The 6 MB it saves over int16 is not worth that.
+   *
+   * int16 is also the FASTEST dtype as of llms v1.19.0, not a tax paid for
+   * the smaller store: the SIMD kernel's i32x4.dot_i16x8_s does 8
+   * multiply-accumulates per instruction, so the first pass runs ~11x
+   * rather than ~5.5x for float32. Narrower values mean more per lane.
+   */
+  VEC_DTYPE: VEC_DTYPE.INT16,
 
   ANSWER_PROMPT:  path.join(ROOT, "prompts/answer.ppl"),
   // Domain-specific. The vendored llms copy is written for water-treatment

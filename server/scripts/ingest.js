@@ -92,6 +92,7 @@ const main = async () => {
     markdown:   await fs.readFile(file, "utf8"),
     documentId: deriveDocumentId(file),
     vecDim,
+    vecDtype: CONFIG.VEC_DTYPE,
     vectorize,
     ...(augmentPrompt ? {
       runLLM:    claudeRun,
