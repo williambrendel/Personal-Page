@@ -135,7 +135,10 @@ INSTANCE="$(aws ec2 describe-instances --profile "$PROFILE" --region "$REGION" \
   --query 'Reservations[].Instances[].InstanceId' --output text)"
 [[ -n "$INSTANCE" ]] || fail "No running instance tagged App=personal-page."
 
-BUCKET="personal-page-artifacts-$(aws sts get-caller-identity --profile "$PROFILE" --query Account --output text)"
+# The bucket name is globally unique, so a second region needs its own.
+# ARTIFACT_BUCKET overrides it outright; otherwise BUCKET_SUFFIX is appended,
+# matching the BucketSuffix parameter in infra/bootstrap.yml.
+BUCKET="${ARTIFACT_BUCKET:-personal-page-artifacts-$(aws sts get-caller-identity --profile "$PROFILE" --query Account --output text)${BUCKET_SUFFIX:-}}"
 
 echo "  commit    ${SHA:0:7}"
 echo "  instance  $INSTANCE"
