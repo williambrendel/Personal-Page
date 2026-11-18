@@ -243,7 +243,20 @@ Shorter than stories. Use `perspective_template.md`.
    `npm run ingest -- stories/<file>.md`.
 3. `npm run check-starters` — free, and it catches a renamed heading that
    quietly drops a chip back to the engine.
-4. `npm run coverage` — about six cents, and it is the only one of these that
+4. `npm run coverage` — about six cents, and the only one of these that
    measures whether a question can actually be *answered*. `tune-floor`
    measures retrieval, which is a different thing: it cannot tell you a
    question has no material behind it.
+
+**Do not A/B a single edit on the coverage total.** There is a model in that
+loop, so labels on borderline questions flip between runs. The heading edit
+above moved its own question from THIN to ok, and the same run moved
+"realigning a team's priorities" from THIN to DECLINED — which was not
+caused by the edit: that question still retrieves the same section at the
+same 0.722, and the edited story does not appear in its results at all. Its
+two rows are simply both weak (the top one, at 0.770, is about family time),
+so the model grounded it one run and not the next.
+
+Read the total as a standing inventory, not as an instrument. To tell whether
+one change worked, use `npm run retrieve` — it has no model in it and it
+returns the same ranking every time.
