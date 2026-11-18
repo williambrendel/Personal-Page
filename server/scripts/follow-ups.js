@@ -65,7 +65,7 @@ const PROMPTS = {
  * `rag.buildFollowUps` is new and not in the published llms yet, so point
  * LLMS_SRC at a checkout to run against a branch:
  *
- *   LLMS_SRC=~/Development/Projects/llms/src npm run follow-ups -- --limit 4
+ *   LLMS_SRC=~/Development/Projects/stack/llms/src npm run follow-ups -- --limit 4
  *
  * Unset, this resolves the installed package exactly as everything else
  * does, and will keep working untouched once a release carries the stage.
