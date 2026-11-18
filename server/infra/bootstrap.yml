@@ -78,8 +78,42 @@ Parameters:
       omitting the override leaves it at "no" and reports "No changes to
       deploy".
 
+  CreateGlobalIam:
+    Type: String
+    AllowedValues: ["yes", "no"]
+    Default: "yes"
+    Description: >-
+      "no" when this stack runs in a SECOND region and the roles already
+      exist. personal-page-deploy, personal-page-instance and the instance
+      profile are IAM: global, one per account, not one per region. A second
+      stack that tries to create them fails with "already exists", which is
+      the whole reason this switch is here.
+
+      The same warning as CreateGitHubProvider applies in reverse: do NOT
+      flip this to "no" on the stack that OWNS the roles unless they carry
+      DeletionPolicy: Retain, or CloudFormation will delete the identity the
+      box and the GitHub workflow both authenticate with.
+
+  BucketSuffix:
+    Type: String
+    Default: ""
+    Description: >-
+      Appended to the artifact bucket name. S3 bucket names are globally
+      unique, so a second region needs its own: pass "-us-west-2". Empty
+      keeps the original name, so the existing stack is unchanged.
+
+  ExtraBucketArn:
+    Type: String
+    Default: ""
+    Description: >-
+      A second artifact bucket the roles may also read and write. Used while
+      migrating regions, so the roles created here can reach the new
+      region's bucket before that region owns them.
+
 Conditions:
   NewProvider: !Equals [!Ref CreateGitHubProvider, "yes"]
+  NewGlobalIam: !Equals [!Ref CreateGlobalIam, "yes"]
+  HasExtraBucket: !Not [!Equals [!Ref ExtraBucketArn, ""]]
 
 Resources:
 
@@ -92,7 +126,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      BucketName: !Sub "personal-page-artifacts-${AWS::AccountId}"
+      BucketName: !Sub "personal-page-artifacts-${AWS::AccountId}${BucketSuffix}"
       VersioningConfiguration: { Status: Enabled }
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -122,6 +156,9 @@ Resources:
 
   # ── The role the deploy workflow assumes ─────────────────────────────────
   GitHubDeploy:
+    Condition: NewGlobalIam
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Type: AWS::IAM::Role
     Properties:
       RoleName: personal-page-deploy
@@ -155,9 +192,14 @@ Resources:
               - Sid: PutAndReadReleases
                 Effect: Allow
                 Action: [s3:PutObject, s3:GetObject, s3:ListBucket, s3:GetBucketLocation]
-                Resource:
-                  - !GetAtt Artifacts.Arn
-                  - !Sub "${Artifacts.Arn}/*"
+                Resource: !If
+                  - HasExtraBucket
+                  - - !GetAtt Artifacts.Arn
+                    - !Sub "${Artifacts.Arn}/*"
+                    - !Ref ExtraBucketArn
+                    - !Sub "${ExtraBucketArn}/*"
+                  - - !GetAtt Artifacts.Arn
+                    - !Sub "${Artifacts.Arn}/*"
 
               # Find the box to deploy to. Describe* cannot be resource-scoped.
               - Sid: FindTheInstance
@@ -189,6 +231,9 @@ Resources:
 
   # ── The role the instance runs as ────────────────────────────────────────
   InstanceRole:
+    Condition: NewGlobalIam
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Type: AWS::IAM::Role
     Properties:
       RoleName: personal-page-instance
@@ -211,9 +256,14 @@ Resources:
               - Sid: PullReleasesAndModels
                 Effect: Allow
                 Action: [s3:GetObject, s3:ListBucket]
-                Resource:
-                  - !GetAtt Artifacts.Arn
-                  - !Sub "${Artifacts.Arn}/*"
+                Resource: !If
+                  - HasExtraBucket
+                  - - !GetAtt Artifacts.Arn
+                    - !Sub "${Artifacts.Arn}/*"
+                    - !Ref ExtraBucketArn
+                    - !Sub "${ExtraBucketArn}/*"
+                  - - !GetAtt Artifacts.Arn
+                    - !Sub "${Artifacts.Arn}/*"
 
               # The Anthropic key, read at boot. The box can read it; the
               # deploy role deliberately cannot.
@@ -235,6 +285,9 @@ Resources:
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/personal-page/*"
 
   InstanceProfile:
+    Condition: NewGlobalIam
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Type: AWS::IAM::InstanceProfile
     Properties:
       InstanceProfileName: personal-page-instance
@@ -245,9 +298,11 @@ Outputs:
     Description: Releases and the embedding model cache
     Value: !Ref Artifacts
   DeployRoleArn:
+    Condition: NewGlobalIam
     Description: role-to-assume for the GitHub workflow
     Value: !GetAtt GitHubDeploy.Arn
   InstanceProfileName:
+    Condition: NewGlobalIam
     Description: Attach this when launching the instance
     Value: !Ref InstanceProfile
   TrustedSubject:
