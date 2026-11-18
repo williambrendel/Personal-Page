@@ -2,7 +2,10 @@
 
 Ordered by measurement, not estimate. Last reconciled against the corpus on
 **17 Nov 2026** with `npm run coverage` — a 50-question executive battery run
-through the real `engine.ask()`: **32 answered, 12 thin, 6 declined**.
+through the real `engine.ask()`. Two runs, same corpus apart from one
+heading edit: **32/12/6**, then **33 answered, 10 thin, 7 declined**. The
+spread between those two runs is the noise floor of this instrument — read
+the declines, not the totals.
 
 Format: use `story_template.md`. Keep sections under 150 words so each embeds
 as one vector. Write headers as the question a visitor would type — the header
@@ -75,7 +78,7 @@ npm run retrieve -- "<the question, worded the way a stranger would>"
 | File | Answers |
 |---|---|
 | `apple_offer_and_google` | career choices, turning down an offer |
-| `heali_early_team` | early/small team, realigning priorities |
+| `heali_early_team` | early/small team, the values a team runs on |
 | `heali_letting_someone_go` | letting someone go, the human side, what changed |
 | `heali_nutrition_engine` | favourite project, a bet on hard data |
 | `heali_overbuilt_before_validating` | failure, biggest mistake, a project that failed |
@@ -100,8 +103,8 @@ incident** (`iscribe_outage_night`).
 
 ## Tier 1 — measured gaps, nothing in the corpus at all
 
-These six are the questions the coverage run **declined**: no grounded section
-exists, and the model correctly refused to invent one. Four of the six are
+These are the questions the coverage run **declined**: no grounded section
+exists, and the model correctly refused to invent one. Four of the seven are
 people management, which is the single biggest hole in an otherwise strong
 executive corpus.
 
@@ -145,14 +148,32 @@ strategy misjudgement rather than a missed commitment. Prompts:
 - What did you have to stop doing to make room for the rewrite?
 - What were the numbers after?
 
-### 7. Disagreeing upward — CEO, board, or investor
+### 7. Realigning a team's priorities after a shift in market conditions
+**Declined on the second run; THIN on the first.** Treat this one as a real
+gap, not a phrasing miss. `retrieve` returns two rows and neither answers the
+question: a section about protecting family time at 0.770, and
+`heali_early_team`'s *team values* section at 0.722 — "speed and customer
+satisfaction, which we didn't set at the start". Close in embedding space,
+not an answer.
+
+So do **not** reach for the heading lever here. Putting "how did you realign
+priorities after a market shift" on a section about team values would make
+the engine retrieve a confident non-answer, which is worse than the decline.
+The heading lever only works when the material is genuinely present under a
+different phrasing — check with `retrieve` and *read the rows* before
+assuming it is. Prompts:
+- What changed outside the company, and how late did you see it?
+- What did you stop, and who had been invested in it?
+- How did you tell the team the thing they had been building was off the plan?
+
+### 8. Disagreeing upward — CEO, board, or investor
 Partially covered: `youtube_shipping_past_politics` answers disagreeing with
 *senior leadership*. The board/investor version is still missing, and it is a
 different question. Prompts:
 - What were you asking them to do, and what did it cost them to say yes?
 - What did you do when they said no?
 
-### 8. A hire that did not work out
+### 9. A hire that did not work out
 Adjacent to `heali_letting_someone_go`, but that story is about the exit.
 This one is about the decision that led there. Prompts:
 - What did you believe about them at offer stage that turned out wrong?
@@ -161,38 +182,38 @@ This one is about the decision that led there. Prompts:
 ---
 ## Tier 2 — strong coverage gains
 
-### 9. Raising the $4M at Heali
+### 10. Raising the $4M at Heali
 "How do you fundraise?", "What was hardest about raising?" — what nearly
 killed the round, and what changed the outcome.
 
-### 10. Winding down or pivoting Heali
+### 11. Winding down or pivoting Heali
 "Tell me about something that didn't work out", "How do you know when to
 stop?" — the hardest kind of story to tell and the most credible.
 
-### 11. A technical bet that paid off
+### 12. A technical bet that paid off
 "Tell me about a risk you took" — what you were betting on, who disagreed.
 
-### 12. A technical bet that didn't
+### 13. A technical bet that didn't
 "What's a technical decision you regret?" — how long before you admitted it.
 
-### 13. 100fps on mobile at Amazon A9
+### 14. 100fps on mobile at Amazon A9
 "Tell me about a hard technical constraint" — the one story that shows depth
 rather than management.
 
-### 14. Running 40+ concurrent projects at Snap
+### 15. Running 40+ concurrent projects at Snap
 "How do you manage at scale?", "How do you prioritize across a portfolio?"
 
-### 15. The first pen test at iScribeHealth
+### 16. The first pen test at iScribeHealth
 "Tell me about a compliance or security challenge" — what the findings were
 and how you triaged 100% of the high-severity ones.
 
-### 16. A great hire
+### 17. A great hire
 "Who's the best person you've hired?" — what you saw that others missed.
 
-### 17. Build vs buy
+### 18. Build vs buy
 "How do you decide build vs buy?" — a specific decision, not the principle.
 
-### 18. Saying no to a customer or to sales
+### 19. Saying no to a customer or to sales
 "How do you handle pressure from the business?"
 
 ---
