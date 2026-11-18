@@ -1,6 +1,6 @@
 # Overbuilding before validating at Heali
 
-## Tell me about a time you failed. What's your biggest mistake?
+## Tell me about a time you failed. What's your biggest mistake? Tell me about a major project that failed under your watch.
 
 Early at Heali we overbuilt features before validating demand. We had a strong technical thesis and we kept building against it instead of putting something small in front of users and finding out.
 

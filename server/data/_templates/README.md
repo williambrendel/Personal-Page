@@ -42,7 +42,7 @@ to stand up without a model smoothing it over. If it reads as a setup rather
 than an answer, **extend the starter's `from` list across the sections that
 already continue it** before you touch a word of prose. The later sections
 in a well-written file are the rest of the answer; they were written as the
-continuation and they concatenate into one piece. Four starters on this site
+continuation and they concatenate into one piece. Eight starters on this site
 are assembled that way and not one word of them was rewritten.
 
 **3. Only now consider editing, and only for one of these:**

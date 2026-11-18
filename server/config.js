@@ -428,7 +428,7 @@ module.exports = Object.freeze({
       // answer a recruiter is actually listening for. They were written as
       // the continuation, so no part of this is rewritten to fit the chip.
       from: [
-        "stories/heali_overbuilt_before_validating.md#Tell me about a time you failed. What's your biggest mistake?",
+        "stories/heali_overbuilt_before_validating.md#Tell me about a time you failed. What's your biggest mistake? Tell me about a major project that failed under your watch.",
         "stories/heali_overbuilt_before_validating.md#What did that mistake cost you?",
         "stories/heali_overbuilt_before_validating.md#What did you learn from failing? What did you change?",
       ],

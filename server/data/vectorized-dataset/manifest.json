@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T23:00:28.855Z",
+  "generatedAt": "2026-11-18T05:02:33.964Z",
   "documents": {
     "background|book": "f453fd56852a020e3e6972c6f894fc7505caa85846ebf41acc2b8ff0658bb363",
     "background|demographics_and_eligibility": "dc2af8bbbc9142720ccffa9aca1b929d655aba360ff6ed5db5c913991db19d04",
@@ -45,7 +45,7 @@
     "stories|heali_early_team": "26b3731498acbc9aae6dda4e66b363990ab7a6fc37a52a4054a8e8d3f4286baf",
     "stories|heali_letting_someone_go": "89c31c2196c8a9fd9e1759cdcb59e5050b1ca1ea30a1afd65f95017d2146a4b3",
     "stories|heali_nutrition_engine": "aeec8482d4671d5018adf3c6542a09a742444dc11062d962b397a6ce0a5ddf13",
-    "stories|heali_overbuilt_before_validating": "34d2f0b31612bf053a403473c67f94c27a386f3a17f0e71442f1e14d6a656222",
+    "stories|heali_overbuilt_before_validating": "14b5d8ca2afd3807218f5b8b8cd7116899165a708281de44f841f0943af49ad4",
     "stories|how_i_became_a_pm": "6271d9583bbd4225222c7f5b7d2f2fe21c84d1d7185bb43dfa95805ad1a41547",
     "stories|how_i_ended_up_in_ai": "4695dd6de5e04e74c9f1140c1c93078fd787fdb91acd2361b77df189fc89ad3f",
     "stories|iscribe_azure_or_aws": "04606dad4d8adf1cf7b9a3338c3865b4faa1cf5304da99a367fd7945bf27c729",
