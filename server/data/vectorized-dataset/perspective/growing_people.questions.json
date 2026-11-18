@@ -1,0 +1,60 @@
+{
+  "documentId": "perspective|growing_people",
+  "sections": [
+    {
+      "range": [
+        105,
+        793
+      ],
+      "questions": [
+        "How do you keep your best people from leaving?",
+        "What did you personally give your team that money couldn't buy?",
+        "Why did your team call you Gandalf?",
+        "How do you actually teach the people on your team?",
+        "What do you teach your team at the whiteboard?",
+        "Why teach fundamentals when everyone is moving so fast?",
+        "How do you make sure what you teach your team is credible?"
+      ]
+    },
+    {
+      "range": [
+        917,
+        1348
+      ],
+      "questions": [
+        "What do you give your best people that money can't buy?",
+        "Why do you think investing in someone's skills beats handing them a bonus?",
+        "How do you pass on what you know to the engineers you want to grow?",
+        "What do you actually teach when you pair-code with someone?"
+      ]
+    },
+    {
+      "range": [
+        1423,
+        1852
+      ],
+      "questions": [
+        "How do you recognize a high performer?",
+        "What do you expect from your best people when it comes to taking initiative?",
+        "Why do you value people who take the job personally?",
+        "How do your best people deal with failure?",
+        "What kind of personality do you like to see in the people you work with?",
+        "What drives the best people you've seen?"
+      ]
+    },
+    {
+      "range": [
+        1932,
+        2312
+      ],
+      "questions": [
+        "What does a culture of failure mean to you?",
+        "Why would you want your people to fail?",
+        "When is it okay to let someone fail?",
+        "How do you let people fail without it turning into a disaster?",
+        "What's the difference between encouraging failure and just being careless?",
+        "What have you done to get your team comfortable taking risks?"
+      ]
+    }
+  ]
+}

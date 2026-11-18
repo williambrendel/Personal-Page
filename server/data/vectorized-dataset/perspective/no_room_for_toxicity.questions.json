@@ -1,0 +1,29 @@
+{
+  "documentId": "perspective|no_room_for_toxicity",
+  "sections": [
+    {
+      "range": [
+        86,
+        203
+      ],
+      "questions": [
+        "How do you deal with a star performer who's poisoning the team?",
+        "What's your tolerance for toxic people on a team?",
+        "Why not make an exception for someone who hits their numbers?"
+      ]
+    },
+    {
+      "range": [
+        273,
+        889
+      ],
+      "questions": [
+        "What framework do you use to judge the people on your team?",
+        "Why would you cut a top performer loose instead of working around them?",
+        "Why do so many companies reward and promote toxic top performers?",
+        "How does one high performer nobody trusts end up hurting the whole team?",
+        "Where does your thinking on performance and trust come from?"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T05:02:33.964Z",
+  "generatedAt": "2026-11-18T18:11:25.017Z",
   "documents": {
     "background|book": "f453fd56852a020e3e6972c6f894fc7505caa85846ebf41acc2b8ff0658bb363",
     "background|demographics_and_eligibility": "dc2af8bbbc9142720ccffa9aca1b929d655aba360ff6ed5db5c913991db19d04",
@@ -57,6 +57,10 @@
     "stories|onboarding_my_own_director": "bf23a5d7e6c46f21975e17ce2117d49d1703384def74b7de3045ab19a72433cb",
     "stories|snap_beauty_score_filter": "be629c0475e42c2e5e2a92603fbd07e394b24cb50ccb5f8da72973bd12ba0e72",
     "stories|told_id_never_make_it": "7f3f8ea13d2db8793d8e2f02ebf59eb0f3ac577db5f54b76efaf57e628f6aeab",
-    "stories|youtube_shipping_past_politics": "81ad666623d03a0acfbcfad9c6159a0cbfab2a2a24759ae20dc822eda60fb372"
+    "stories|youtube_shipping_past_politics": "81ad666623d03a0acfbcfad9c6159a0cbfab2a2a24759ae20dc822eda60fb372",
+    "stories|heali_launch_that_kept_slipping": "cd684617a56e93f0524e46455360feb8fc7be9fc4d893c7f3e571f0663d35c9c",
+    "stories|iscribe_wrong_crowd_to_convince": "248ec5b5ebabe06fc39ea91a5db10d94a38e7ee0ff9c55c7a2a4b2917e006fb3",
+    "perspective|growing_people": "e34d6a0adf02f96a38d99598aad793f4d76e4ffe7cc2834f42a4f4a324d158e1",
+    "perspective|no_room_for_toxicity": "fd2ad24b4f742dc30a204c5e0a92fcb29f9dc935d2dd52c95531761db243d2c9"
   }
 }

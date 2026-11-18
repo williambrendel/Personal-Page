@@ -1,0 +1,49 @@
+{
+  "documentId": "stories|heali_launch_that_kept_slipping",
+  "sections": [
+    {
+      "range": [
+        158,
+        1034
+      ],
+      "questions": [
+        "What went wrong with the Heali launch?",
+        "Why did the Heali launch keep getting pushed back?",
+        "How did you turn the Heali situation around?",
+        "Who made the call to keep delaying the Heali launch?",
+        "How long did the Heali launch keep slipping?",
+        "Why didn't you see the Heali delays as a problem sooner?",
+        "What did the Heali launch teach you?",
+        "How do you decide which features actually belong in a product?",
+        "What did the Heali app end up looking like?",
+        "What did the Heali mistake actually cost you?"
+      ]
+    },
+    {
+      "range": [
+        1119,
+        1624
+      ],
+      "questions": [
+        "What did missing the Heali launch date teach you?",
+        "How long did the Heali launch drag on?",
+        "How do you handle feature requests from customers?",
+        "What's the difference between what customers say they want and what they need?",
+        "Why do you say simplicity always wins?",
+        "What's your TV remote versus Apple remote example about?"
+      ]
+    },
+    {
+      "range": [
+        1686,
+        2035
+      ],
+      "questions": [
+        "How do you keep a launch from slipping again and again?",
+        "Why do you distrust slow failure more than a blow-up?",
+        "What do you mean by the slow kind of failure?",
+        "When are you willing to move a deadline?"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "documentId": "stories|iscribe_wrong_crowd_to_convince",
+  "sections": [
+    {
+      "range": [
+        177,
+        570
+      ],
+      "questions": [
+        "What did you get wrong about the customer at iScribeHealth?",
+        "Why was your iScribeHealth pitch aimed at people who couldn't buy?",
+        "What's the difference between real traction and people just liking your product?",
+        "Why is false traction so easy to fall for?",
+        "Who actually controlled the budget at iScribeHealth?",
+        "What market approach was iScribeHealth focused on?"
+      ]
+    },
+    {
+      "range": [
+        650,
+        989
+      ],
+      "questions": [
+        "What did you misread about your buyer at iScribeHealth?",
+        "Why wasn't your pitch working on the people holding the budget at iScribeHealth?",
+        "What did the administrators at iScribeHealth actually care about?",
+        "What did an administrator see when they looked at what you'd built at iScribeHealth?",
+        "Why can't you just keep polishing a pitch that isn't landing?",
+        "Who actually needed convincing at iScribeHealth?"
+      ]
+    },
+    {
+      "range": [
+        1080,
+        1617
+      ],
+      "questions": [
+        "What did you build at iScribeHealth after the roadmap shifted?",
+        "How does the AI assistant you built actually work?",
+        "How much revenue do providers lose to under-billing?",
+        "Why did you pick billing codes over other features at iScribeHealth?",
+        "How did you decide what to build when you refocused the roadmap on the buyer?",
+        "Why did the feature need a countable effect on revenue?",
+        "Who were you building the billing assistant for?"
+      ]
+    },
+    {
+      "range": [
+        1681,
+        2127
+      ],
+      "questions": [
+        "How do you decide what to prioritize once you know who the buyer is?",
+        "Do you figure out who your buyer is before you build, or after?",
+        "Why don't you trust excitement from users who love the demo?",
+        "Was the iScribeHealth shift really the market moving?"
+      ]
+    }
+  ]
+}

@@ -73,7 +73,51 @@ npm run retrieve -- "<the question, worded the way a stranger would>"
 
 ---
 
-## Already in the corpus (17 stories)
+## One paragraph per heading — and keep a two-part answer in one section
+
+Measured 18 Nov 2026 while writing `heali_launch_that_kept_slipping`, and it
+cost three ingests to find, so it is worth reading before writing the next
+file.
+
+The first draft had four headings with two or three paragraphs under each.
+Each paragraph becomes its own vector, so the two paragraphs of the opening
+section took both retrieved slots and the rest of the story never surfaced.
+Rewriting it to one paragraph per heading did not fix it either — scores
+against "Describe failing to meet a major deadline or KPI. How did you
+rectify it?":
+
+| section | score | outcome |
+|---|---|---|
+| the setup — the launch kept slipping | **0.765** | retrieved |
+| reasonable delay vs feature creep | 0.706 | above the floor, cut by the gap rule |
+| what it cost, and the fix | 0.670 | below the 0.70 floor |
+
+One row reached the answer prompt, out of three sections that were all about
+the right event.
+
+The engine answered from the setup alone and then said, correctly and
+damningly, *"I haven't written up how the launch was eventually resolved."*
+The rectification was sitting in the file, two paragraphs away.
+
+**Why the obvious fix does not work.** The heading on that second section
+already said "How did you rectify it?", word for word from the question, and
+it still scored 0.670. The query is split into segments and each is searched
+separately — and the segment "How did you rectify it?" is anaphoric. On its
+own it has no subject and almost no embedding signal, so it does no retrieval
+work at all. Only "Describe failing to meet a major deadline or KPI" does.
+**A question that asks two things will be answered by whichever section
+matches the first thing**, so the answer to the second has to live in that
+same section.
+
+What fixed it: one section, ~170 words, carrying setup → cost → fix as a
+single paragraph. `iscribe_azure_or_aws` is the precedent for that length.
+The two lesson-shaped headings stayed separate, because they answer genuinely
+different questions a visitor would type.
+
+So: **one paragraph per heading**, and if a battery question has two clauses,
+put the whole arc under the clause that carries the nouns.
+
+## Already in the corpus (19 stories)
 
 | File | Answers |
 |---|---|
@@ -82,12 +126,14 @@ npm run retrieve -- "<the question, worded the way a stranger would>"
 | `heali_letting_someone_go` | letting someone go, the human side, what changed |
 | `heali_nutrition_engine` | favourite project, a bet on hard data |
 | `heali_overbuilt_before_validating` | failure, biggest mistake, a project that failed |
+| `heali_launch_that_kept_slipping` | a missed deadline, a commitment slipped, feature creep |
 | `how_i_became_a_pm` | moving from research to product |
 | `how_i_ended_up_in_ai` | the path into AI |
 | `iscribe_azure_or_aws` | hardest technical call, staying put |
 | `iscribe_outage_night` | a decision under severe time pressure, incident response |
 | `iscribe_tech_debt_tradeoff` | hard tradeoff, prioritisation |
 | `iscribe_turnaround` | proudest achievement |
+| `iscribe_wrong_crowd_to_convince` | realigning after a market shift, finding the real buyer |
 | `kelley_building_and_jensen_huang` | formative encounters |
 | `leaving_big_tech_for_heali` | big tech to founding |
 | `onboarding_my_own_director` | onboarding a senior/executive hire |
@@ -103,117 +149,102 @@ incident** (`iscribe_outage_night`).
 
 ## Tier 1 — measured gaps, nothing in the corpus at all
 
-These are the questions the coverage run **declined**: no grounded section
-exists, and the model correctly refused to invent one. Four of the seven are
-people management, which is the single biggest hole in an otherwise strong
-executive corpus.
+Five of the original nine were written on 18 Nov 2026 from William's own
+answers and verified through `npm run ask`:
+`heali_launch_that_kept_slipping`, `iscribe_wrong_crowd_to_convince`,
+`perspective/growing_people` (covers both the talent and the reward
+questions) and `perspective/no_room_for_toxicity`. What follows is what is
+actually left.
 
-### 1. Identifying, grooming and retaining high-potential talent
-**Declined 17 Nov 2026.** Prompts:
-- Who is someone you spotted early, and what did you see before others did?
-- What did you actually *do* for them — scope, exposure, air cover, a hard
-  conversation?
-- What did you do that failed to retain someone you wanted to keep?
+### 1. Mediating a dispute between HR and a business unit leader — **deliberately left declined**
 
-### 2. Rewarding and recognising high performers beyond compensation
-**Declined.** Prompts:
-- A specific thing you gave someone that mattered more than money.
-- What do you do when you have no budget and no title to hand out?
-- Where does public recognition backfire?
+Asked on 18 Nov 2026; William's answer was "I don't have a personal story
+about that", with a generic mediation framework attached as a possible
+substitute. **That substitute was not added, and should not be.** The page's
+whole claim is that a stranger gets a vetted answer from a person, and
+`perspective/ai_slop.md` is William arguing in his own words against work
+that is "correct, organised, grammatically sound — and completely hollow".
+Publishing competent management advice nobody lived would be that exact
+thing, on his own site, under his name. An honest decline costs one question
+on a 50-question battery. Getting caught publishing slop costs the premise.
 
-### 3. A high performer who was toxic to peers
-**Declined.** The question every hiring panel asks and almost nobody has a
-real answer to. Prompts:
-- What was the behaviour, and how did you first hear about it?
-- How long did you tolerate it, honestly, and what did that cost the team?
-- What did you say to them, and what happened next?
-
-### 4. Mediating a dispute between HR and a business unit leader
-**Declined.** Prompts:
+So this stays a decline until there is a real incident to tell. Prompts, for
+when there is one:
 - What was the disagreement actually about underneath the stated positions?
 - Whose side were you on, and did you say so?
 - What did you have to give up to land it?
 
-### 5. Failing to meet a major deadline or KPI, and rectifying it
-**Declined.** Distinct from `heali_overbuilt_before_validating`, which is a
-strategy misjudgement rather than a missed commitment. Prompts:
-- What was the commitment, to whom, and by when?
-- When did you know you would miss it, and how did you tell them?
-- What did you change so it did not happen twice?
+### 2. Re-engineering an inefficient process from scratch
 
-### 6. Re-engineering an inefficient process from scratch
-**Declined.** The .NET 4 → .NET 8 migration appears as a *fact* in
-`career/iscribehealth.md` but has never been written as a story. Prompts:
+**Still declined.** `retrieve` returns nothing at all for it. The .NET 4 →
+.NET 8 migration appears as a *fact* in `career/iscribehealth.md` — "cut
+production downtime by 70%" — but has never been written as a story, so it
+is the cheapest one left. Prompts:
 - What was the process before, and what did it cost in time or money?
 - What did you have to stop doing to make room for the rewrite?
 - What were the numbers after?
 
-### 7. Realigning a team's priorities after a shift in market conditions
-**Declined on the second run; THIN on the first.** Treat this one as a real
-gap, not a phrasing miss. `retrieve` returns two rows and neither answers the
-question: a section about protecting family time at 0.770, and
-`heali_early_team`'s *team values* section at 0.722 — "speed and customer
-satisfaction, which we didn't set at the start". Close in embedding space,
-not an answer.
+### 3. Disagreeing upward — CEO, board, or investor
 
-So do **not** reach for the heading lever here. Putting "how did you realign
-priorities after a market shift" on a section about team values would make
-the engine retrieve a confident non-answer, which is worse than the decline.
-The heading lever only works when the material is genuinely present under a
-different phrasing — check with `retrieve` and *read the rows* before
-assuming it is. Prompts:
-- What changed outside the company, and how late did you see it?
-- What did you stop, and who had been invested in it?
-- How did you tell the team the thing they had been building was off the plan?
-
-### 8. Disagreeing upward — CEO, board, or investor
 Partially covered: `youtube_shipping_past_politics` answers disagreeing with
 *senior leadership*. The board/investor version is still missing, and it is a
 different question. Prompts:
 - What were you asking them to do, and what did it cost them to say yes?
 - What did you do when they said no?
 
-### 9. A hire that did not work out
+### 4. A hire that did not work out
+
 Adjacent to `heali_letting_someone_go`, but that story is about the exit.
 This one is about the decision that led there. Prompts:
 - What did you believe about them at offer stage that turned out wrong?
 - What would have shown you that in the interview?
 
----
+### A note on the toxic-high-performer entry
+
+`perspective/no_room_for_toxicity.md` answers the question, but it is thin on
+lived detail: William's own position is two sentences ("I cut them off. There
+is no place for toxicity"), and the reasoning around it is Simon Sinek's
+trust-versus-performance matrix, **attributed in the text rather than absorbed
+into his voice**. Keep that attribution. If a specific incident ever gets
+written up — how long the behaviour was tolerated, what was said, what it
+cost the team — it belongs in that file and should push the borrowed framing
+into second place.
+
+
 ## Tier 2 — strong coverage gains
 
-### 10. Raising the $4M at Heali
+### 5. Raising the $4M at Heali
 "How do you fundraise?", "What was hardest about raising?" — what nearly
 killed the round, and what changed the outcome.
 
-### 11. Winding down or pivoting Heali
+### 6. Winding down or pivoting Heali
 "Tell me about something that didn't work out", "How do you know when to
 stop?" — the hardest kind of story to tell and the most credible.
 
-### 12. A technical bet that paid off
+### 7. A technical bet that paid off
 "Tell me about a risk you took" — what you were betting on, who disagreed.
 
-### 13. A technical bet that didn't
+### 8. A technical bet that didn't
 "What's a technical decision you regret?" — how long before you admitted it.
 
-### 14. 100fps on mobile at Amazon A9
+### 9. 100fps on mobile at Amazon A9
 "Tell me about a hard technical constraint" — the one story that shows depth
 rather than management.
 
-### 15. Running 40+ concurrent projects at Snap
+### 10. Running 40+ concurrent projects at Snap
 "How do you manage at scale?", "How do you prioritize across a portfolio?"
 
-### 16. The first pen test at iScribeHealth
+### 11. The first pen test at iScribeHealth
 "Tell me about a compliance or security challenge" — what the findings were
 and how you triaged 100% of the high-severity ones.
 
-### 17. A great hire
+### 12. A great hire
 "Who's the best person you've hired?" — what you saw that others missed.
 
-### 18. Build vs buy
+### 13. Build vs buy
 "How do you decide build vs buy?" — a specific decision, not the principle.
 
-### 19. Saying no to a customer or to sales
+### 14. Saying no to a customer or to sales
 "How do you handle pressure from the business?"
 
 ---
