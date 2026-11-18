@@ -232,12 +232,22 @@
   max-width: 62ch;
   font-size: 15px;
   line-height: 1.7;
-  text-align: center;
+  /* Justified: flush left, flush right, with the last line left-aligned.
+     Hyphenation is what keeps that honest — without it, justifying a 62ch
+     measure opens rivers of white space between words on the lines that
+     happen to hold long ones ("retrieval-augmented", "documentation"). */
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
   color: var(--text-on-dark-2);
 }
 
 .more-intro em { font-style: italic; }
 
+/* Narrow screens stay ragged-right. Justification needs a measure wide
+   enough to absorb the stretch; on a phone the lines are short enough that
+   it produces visible gaps instead of a clean edge. Change `left` to
+   `justify` here if you want it everywhere. */
 @media (max-width: 900px) {
   .more-intro {
     font-size: 14px;
