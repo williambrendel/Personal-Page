@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Check every starter, and optionally ask it.
  *
@@ -24,10 +23,10 @@
  * is still retrieval and Claude, and it can still duck. One Claude call per
  * starter, so it is not a test to run on a loop.
  */
-require("../config");
-require("llms/src/xenova/env");
-const CONFIG = require("../config");
-const buildStarters = require("../server/starters").build;
+import "../config.js";
+import "llms/src/xenova/env.js";
+import CONFIG from "../config.js";
+import { build as buildStarters } from "../server/starters.js";
 
 const ASK = process.argv.includes("--ask");
 
@@ -67,7 +66,9 @@ const DUCKS = [
   }
 
   // ── Paid pass: what a visitor gets if they type it instead ─────────────
-  const getEngine = require("../server/engine");
+  // Loaded here, not at the top: the free pass above must run without
+  // paying the engine's model-cache load. Dynamic import keeps that.
+  const { default: getEngine } = await import("../server/engine.js");
   const engine = await getEngine();
   let bad = 0;
 

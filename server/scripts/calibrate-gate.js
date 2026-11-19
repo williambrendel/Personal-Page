@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Calibrate the pre-LLM gate (llms v1.10.0) against THIS corpus.
  *
@@ -20,17 +18,17 @@
  * above it, and goodScore just above the highest off-topic score.
  */
 
-const CONFIG = require("../config");
+import CONFIG from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR.
-require("llms/src/xenova/env");
-const VectorStore     = require("llms/src/VectorStore");
-const SectionResolver = require("llms/src/actions/query/SectionResolver");
-const buildAnalyze    = require("llms/src/xenova/buildAnalyzeQuery");
-const search          = require("llms/src/VectorStore/search");
-const unionHits       = require("llms/src/actions/query/unionHits");
-const prewarm         = require("llms/src/xenova/prewarm");
-const gate            = require("llms/src/pipelines/rag/query/gate");
+import "llms/src/xenova/env.js";
+import VectorStore     from "llms/src/VectorStore/index.js";
+import SectionResolver from "llms/src/actions/query/SectionResolver.js";
+import buildAnalyze    from "llms/src/xenova/buildAnalyzeQuery/index.js";
+import search          from "llms/src/VectorStore/search.js";
+import unionHits       from "llms/src/actions/query/unionHits.js";
+import prewarm         from "llms/src/xenova/prewarm.js";
+import gate            from "llms/src/pipelines/rag/query/gate.js";
 
 /** Questions this corpus genuinely covers — drawn from what it actually contains. */
 const ANSWERABLE = [

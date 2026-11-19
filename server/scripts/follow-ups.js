@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Build the follow-up graph for this corpus.
  *
@@ -19,20 +17,21 @@
  * full `npm run ingest`. Run the pilot first and read what comes out.
  */
 
-require("../config");
-require("llms/src/xenova/env");
+import "../config.js";
+import "llms/src/xenova/env.js";
 
-const fs   = require("fs").promises;
-const path = require("path");
+import fs   from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-const CONFIG      = require("../config");
-const VectorStore = require("llms/src/VectorStore");
-const vectorize   = require("llms/src/xenova/vectorize");
-const claudeRun   = require("llms/src/claude");
-const makeLimit   = require("llms/src/utilities/makeLimit");
-const prewarm     = require("llms/src/xenova/prewarm");
-const buildAnalyze = require("llms/src/xenova/buildAnalyzeQuery");
-const { buildGraph } = require("../server/starters");
+import CONFIG      from "../config.js";
+import VectorStore from "llms/src/VectorStore/index.js";
+import vectorize   from "llms/src/xenova/vectorize.js";
+import claudeRun   from "llms/src/claude/index.js";
+import makeLimit   from "llms/src/utilities/makeLimit.js";
+import prewarm     from "llms/src/xenova/prewarm.js";
+import buildAnalyze from "llms/src/xenova/buildAnalyzeQuery/index.js";
+import { buildGraph } from "../server/starters.js";
 
 const args  = process.argv.slice(2);
 const flag  = (name, fallback) => {
@@ -55,8 +54,8 @@ const OUT   = path.join(CONFIG.DATASET, "..", flag("out", "follow-ups.json"));
 // These two decide what every chip on the page says, so they belong where
 // they can be edited and reviewed next to the corpus they describe.
 const PROMPTS = {
-  questions: path.join(__dirname, "../prompts/follow-up-questions.ppl"),
-  answers:   path.join(__dirname, "../prompts/follow-up-answers.ppl"),
+  questions: path.join(import.meta.dirname, "../prompts/follow-up-questions.ppl"),
+  answers:   path.join(import.meta.dirname, "../prompts/follow-up-answers.ppl"),
 };
 
 /**
@@ -73,8 +72,16 @@ const PROMPTS = {
 const LLMS_SRC = process.env.LLMS_SRC
   ? path.resolve(process.env.LLMS_SRC.replace(/^~/, process.env.HOME))
   : null;
-const requireRag = () =>
-  require(LLMS_SRC ? path.join(LLMS_SRC, "pipelines/rag") : "llms/src/pipelines/rag");
+// ESM: a dynamic import is async and an absolute filesystem path must be a
+// file:// URL, so this is awaited at the call site rather than returned
+// synchronously. `.default` is the v1 module.exports value — note the
+// parentheses: `await import(x).default` would await the property of a
+// promise, not the module.
+const importRag = async () => (
+  await import(LLMS_SRC
+    ? pathToFileURL(path.join(LLMS_SRC, "pipelines/rag/index.js")).href
+    : "llms/src/pipelines/rag/index.js")
+).default;
 
 /** `documentId#heading` — unique across this corpus; headings already are. */
 const sectionId = (documentId, heading) => `${documentId}#${heading}`;
@@ -182,7 +189,7 @@ const main = async () => {
   };
 
   const started = Date.now();
-  const rag = requireRag();
+  const rag = await importRag();
 
   // Questions only: the library's first half, on its own. One call per
   // section, no retrieval and no answering pass — which for this corpus is

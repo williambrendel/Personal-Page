@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Boot-time resource loading + a single `ask()` entry point, shared by the
  * HTTP server and the CLI.
@@ -10,21 +8,21 @@
  */
 
 
-const fs = require("fs").promises;
+import fs from "node:fs/promises";
 
-const CONFIG          = require("../config");
+import CONFIG          from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-require("llms/src/xenova/env");
-const VectorStore     = require("llms/src/VectorStore");
-const SectionResolver = require("llms/src/actions/query/SectionResolver");
-const buildAnalyze    = require("llms/src/xenova/buildAnalyzeQuery");
-const runQuery        = require("llms/src/actions/query");
-const prewarm         = require("llms/src/xenova/prewarm");
-const claudeRun       = require("llms/src/claude");
-const manifest        = require("../scripts/manifest");
-const { condense, preamble } = require("./history");
+import "llms/src/xenova/env.js";
+import VectorStore     from "llms/src/VectorStore/index.js";
+import SectionResolver from "llms/src/actions/query/SectionResolver.js";
+import buildAnalyze    from "llms/src/xenova/buildAnalyzeQuery/index.js";
+import runQuery        from "llms/src/actions/query/index.js";
+import prewarm         from "llms/src/xenova/prewarm.js";
+import claudeRun       from "llms/src/claude/index.js";
+import manifest        from "../scripts/manifest.js";
+import { condense, preamble } from "./history.js";
 
 let enginePromise;
 
@@ -101,6 +99,10 @@ const build = async () => {
 /** Idempotent — the first call builds, every later call returns the same engine. */
 const getEngine = () => enginePromise || (enginePromise = build());
 
-module.exports = Object.freeze(Object.defineProperty(getEngine, "getEngine", {
-  value: getEngine,
-}));
+// Both shapes, as the CommonJS version allowed: the default is the function
+// itself, and `getEngine` is the same function as a named export. The old
+// Object.defineProperty/freeze pair existed only to attach that second name
+// to a module.exports function; ES modules do it directly, and the bindings
+// an importer sees are already read-only.
+export default getEngine;
+export { getEngine };

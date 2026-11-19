@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Precomputed answers, and the tree of follow-ups underneath them.
  *
@@ -62,12 +60,12 @@
  * why it is written to be lifted into the shared library as it stands.
  */
 
-const fs   = require("fs").promises;
-const path = require("path");
+import fs   from "node:fs/promises";
+import path from "node:path";
 
-const CONFIG = require("../config");
-const deriveDocumentId = require("llms/src/utilities/deriveDocumentId");
-const { actionsFor } = require("./actions");
+import CONFIG from "../config.js";
+import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
+import { actionsFor } from "./actions.js";
 
 /** How many chips deep the page can go before it has to ask the API. */
 const DEPTH = 4;
@@ -673,4 +671,4 @@ const build = async () => {
   };
 };
 
-module.exports = { build, buildGraph, expand, followUpsFrom, parseSections, normalise, DEPTH };
+export { build, buildGraph, expand, followUpsFrom, parseSections, normalise, DEPTH };

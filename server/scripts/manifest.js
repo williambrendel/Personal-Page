@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Corpus manifest: documentId -> sha256 of the markdown the .bin was built from.
  *
@@ -16,12 +14,12 @@
  * Written by ingest, verified at engine boot.
  */
 
-const fs     = require("fs").promises;
-const path   = require("path");
-const crypto = require("crypto");
+import fs     from "node:fs/promises";
+import path   from "node:path";
+import crypto from "node:crypto";
 
-const CONFIG           = require("../config");
-const deriveDocumentId = require("llms/src/utilities/deriveDocumentId");
+import CONFIG           from "../config.js";
+import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
 
 const MANIFEST_PATH = path.join(CONFIG.DATASET, "manifest.json");
 
@@ -130,10 +128,10 @@ const verify = async () => {
   };
 };
 
-module.exports = Object.freeze({ build, write, verify, MANIFEST_PATH });
+export default Object.freeze({ build, write, verify, MANIFEST_PATH });
 
 // Run directly: `node scripts/manifest.js` writes, `--verify` checks.
-if (require.main === module) {
+if (process.argv[1] === import.meta.filename) {
   (async () => {
     if (process.argv.includes("--verify")) {
       const r = await verify();

@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Version-stamp the site's CSS and JS links, so a deploy is visible at once.
  *
@@ -21,11 +20,11 @@
  * Running it when nothing changed is a no-op and says so.
  */
 
-const fs = require("fs");
-const path = require("path");
-const crypto = require("crypto");
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
 
-const ROOT = path.resolve(__dirname, "../..");
+const ROOT = path.resolve(import.meta.dirname, "../..");
 const HTML = path.join(ROOT, "index.html");
 
 /** 8 hex characters: collision-proof enough for cache keys on one site. */

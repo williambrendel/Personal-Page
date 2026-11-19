@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Conversation memory without a conversation store.
  *
@@ -158,7 +156,7 @@ const preamble = (history) => {
   return lines.join("\n");
 };
 
-module.exports = {
+export {
   clean,
   condense,
   isDependent,

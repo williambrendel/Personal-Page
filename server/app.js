@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * HTTP entry point.
  *
@@ -9,14 +7,17 @@
  * No database, no auth, no upload endpoints — this serves one public corpus.
  */
 
-const express = require("express");
-const cors    = require("cors");
+import express from "express";
+import cors    from "cors";
 
-const CONFIG    = require("./config");
-const getEngine = require("./server/engine");
-const guard     = require("./server/guard");
-const { filterAsked } = require("./server/asked");
-const history = require("./server/history");
+import CONFIG    from "./config.js";
+import getEngine from "./server/engine.js";
+import guard     from "./server/guard.js";
+import { filterAsked } from "./server/asked.js";
+import * as history from "./server/history.js";
+import { actionsFor, warm as warmActions } from "./server/actions.js";
+import { build as buildStarters } from "./server/starters.js";
+import { logQuery } from "./server/log.js";
 
 /**
  * "Write me a X" — a request to do work, not a question about William.
@@ -26,9 +27,6 @@ const history = require("./server/history");
  */
 const TASK_REQUEST =
   /\b(write|build|make|create|generate|code|program|script|draft|design|debug|fix|refactor)\s+(me|us)\b/i;
-const { actionsFor, warm: warmActions } = require("./server/actions");
-const buildStarters = require("./server/starters").build;
-const { logQuery } = require("./server/log");
 
 const QUERY_KEYS = ["q", "question", "query", "message", "msg"];
 

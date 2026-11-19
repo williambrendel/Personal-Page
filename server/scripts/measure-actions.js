@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Where to put the threshold in server/server/actions.js.
  *
@@ -9,9 +8,9 @@
  * decide the number, which are the ones that merely sound like they are
  * about a resume or a conversation.
  */
-require("../config");
-require("llms/src/xenova/env");
-const { scoresFor, SIMILAR } = require("../server/actions");
+import "../config.js";
+import "llms/src/xenova/env.js";
+import { scoresFor, SIMILAR } from "../server/actions.js";
 
 const WANTED = [
   ["Can I see your resume?", "resume"],

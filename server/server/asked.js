@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Drop follow-up suggestions the visitor has already asked.
  *
@@ -27,7 +25,7 @@
  * AI?") survives, and the near-duplicate at 0.747 slips through.
  */
 
-const vectorize = require("llms/src/xenova/vectorize");
+import vectorize from "llms/src/xenova/vectorize.js";
 
 const SIMILAR = 0.82;
 
@@ -91,4 +89,4 @@ const filterAsked = async (suggestions, asked) => {
   }
 };
 
-module.exports = { filterAsked, SIMILAR, WINDOW };
+export { filterAsked, SIMILAR, WINDOW };

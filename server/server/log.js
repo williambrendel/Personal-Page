@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * One line per question, so a bad answer can be explained after the fact.
  *
@@ -28,8 +26,8 @@
  * configured to hold.
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "node:fs";
+import path from "node:path";
 
 /** Rotate at 8 MB. At ~300 bytes a line that is tens of thousands of
  *  questions, which on a personal page is years, and it bounds the disk at
@@ -97,4 +95,4 @@ const logQuery = (entry, file) => {
   }
 };
 
-module.exports = { logQuery, MAX_BYTES };
+export { logQuery, MAX_BYTES };

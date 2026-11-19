@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Coverage audit against a standard executive interview battery.
  *
@@ -23,8 +21,8 @@
  *   DECLINED — no grounded chunk; the model correctly refused to invent
  */
 
-const CONFIG    = require("../config");
-const getEngine = require("./../server/engine");
+import CONFIG    from "../config.js";
+import getEngine from "./../server/engine.js";
 
 const BATTERY = [
   ["Leadership & Executive Vision", [

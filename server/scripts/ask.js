@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * CLI demo.
  *
@@ -7,8 +5,8 @@
  *   npm run ask                                    # interactive REPL
  */
 
-const readline  = require("readline");
-const getEngine = require("../server/engine");
+import readline  from "node:readline";
+import getEngine from "../server/engine.js";
 
 // Chunks arrive with inconsistent leading whitespace, so concatenating them
 // naively yields "next hire.Another one:". Insert a space only where neither

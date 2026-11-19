@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Vendor the Markdown parser Ask Nereus renders its answers with.
  *
@@ -18,12 +17,12 @@
  * tag from an allowlist before any of it reaches the page.
  */
 
-const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
-const { execFileSync } = require("child_process");
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
 
-const ROOT = path.resolve(__dirname, "../..");
+const ROOT = path.resolve(import.meta.dirname, "../..");
 const OUT = path.join(ROOT, "scripts", "md-to-html.js");
 
 const args = process.argv.slice(2);

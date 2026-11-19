@@ -1,18 +1,27 @@
-"use strict";
+import dotenv from "dotenv";
+import path from "node:path";
+import { VEC_DTYPE } from "llms/src/VectorStore/Document/constants.js";
+import Pricing from "llms/src/claude/Pricing.js";
 
-require("dotenv").config({ quiet: true });
-const path = require("path");
-const { VEC_DTYPE } = require("llms/src/VectorStore/Document/constants");
-const Pricing = require("llms/src/claude/Pricing");
+// ESM hoists every import above the module body, so this runs AFTER the
+// imports above — unlike the require() it replaced, which ran before them.
+// That is safe here only because nothing imported above reads the
+// environment at load time: VEC_DTYPE is a frozen enum, Pricing is a class,
+// and llms/src/claude/config runs dotenv itself before it reads the API key.
+// Anything added above that reads process.env at load time breaks silently,
+// with an undefined key rather than an error.
+dotenv.config({ quiet: true });
 
-const ROOT = __dirname;
+const ROOT = import.meta.dirname;
 
 // Point the ONNX model cache outside node_modules.
 //
 // llms resolves its default cache relative to its own package directory,
 // which lands in node_modules/llms/.model_cache — a path `npm ci` deletes.
 // Without this, every deploy would re-download ~125MB from HuggingFace at
-// boot. Set before anything requires llms/src/xenova/env.
+// boot. Set before anything imports llms/src/xenova/env — ESM evaluates
+// dependencies depth-first in source order, so every module here imports
+// ../config.js above llms/src/xenova/env.js, and this runs first.
 process.env.XENOVA_CACHE_DIR ||= path.join(ROOT, ".model_cache");
 
 /**
@@ -101,7 +110,7 @@ const SONNET55 = Object.freeze({
   pricing: PRICING["claude-sonnet-5-5"],
 });
 
-module.exports = Object.freeze({
+export default Object.freeze({
   ROOT,
   PORT: Number(process.env.PORT) || 3002,
   /**

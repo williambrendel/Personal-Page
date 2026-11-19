@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Abuse protection for a public endpoint that fronts a funded API key.
  *
@@ -20,7 +18,7 @@
  * layer 2.
  */
 
-const CONFIG = require("../config");
+import CONFIG from "../config.js";
 
 const HOUR = 3600_000;
 const DAY  = 86_400_000;
@@ -101,4 +99,4 @@ const stats = () => ({
   globalCap: CONFIG.RATE_LIMITS.globalPerDay,
 });
 
-module.exports = Object.freeze({ check, stats, _prune: prune, _hits: hits });
+export default Object.freeze({ check, stats, _prune: prune, _hits: hits });

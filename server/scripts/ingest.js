@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Ingest: data/markdowns/<theme>/<stem>.md → data/vectorized-dataset/<theme>/<stem>.bin
  *
@@ -14,20 +12,20 @@
  */
 
 
-const fs   = require("fs").promises;
-const path = require("path");
+import fs   from "node:fs/promises";
+import path from "node:path";
 
-const CONFIG           = require("../config");
+import CONFIG           from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-require("llms/src/xenova/env");
-const buildBinary      = require("llms/src/actions/generate/binary");
-const vectorize        = require("llms/src/xenova/vectorize");
-const claudeRun        = require("llms/src/claude");
-const deriveDocumentId = require("llms/src/utilities/deriveDocumentId");
-const makeLimit        = require("llms/src/utilities/makeLimit");
-const manifest         = require("./manifest");
+import "llms/src/xenova/env.js";
+import buildBinary      from "llms/src/actions/generate/binary/index.js";
+import vectorize        from "llms/src/xenova/vectorize.js";
+import claudeRun        from "llms/src/claude/index.js";
+import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
+import makeLimit        from "llms/src/utilities/makeLimit.js";
+import manifest         from "./manifest.js";
 
 const args      = process.argv.slice(2);
 const noAugment = args.includes("--no-augment");

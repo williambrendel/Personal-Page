@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Turn "can I see your CV?" into a button that downloads it.
  *
@@ -30,7 +28,7 @@
  * vectorize call on the query — roughly 20ms — and no money.
  */
 
-const vectorize = require("llms/src/xenova/vectorize");
+import vectorize from "llms/src/xenova/vectorize.js";
 
 /**
  * Phrasings for each destination. The whole question is matched against
@@ -154,4 +152,4 @@ const scoresFor = async (query) => {
   return Object.fromEntries(best);
 };
 
-module.exports = { actionsFor, scoresFor, warm, ANCHORS, SIMILAR, MAX_ACTIONS };
+export { actionsFor, scoresFor, warm, ANCHORS, SIMILAR, MAX_ACTIONS };

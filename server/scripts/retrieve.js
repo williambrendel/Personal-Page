@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Retrieval-only diagnostic — no API key, no Claude call, no cost.
  *
@@ -11,19 +9,19 @@
  */
 
 
-const CONFIG              = require("../config");
+import CONFIG              from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-require("llms/src/xenova/env");
-const VectorStore         = require("llms/src/VectorStore");
-const SectionResolver     = require("llms/src/actions/query/SectionResolver");
-const buildAnalyze        = require("llms/src/xenova/buildAnalyzeQuery");
-const search              = require("llms/src/VectorStore/search");
-const unionHits           = require("llms/src/actions/query/unionHits");
-const serializeQueryContext = require("llms/src/xenova/serializeQueryContext");
-const prewarm             = require("llms/src/xenova/prewarm");
-const { MAX_OUTPUT_ROWS } = require("llms/src/VectorStore/constants");
+import "llms/src/xenova/env.js";
+import VectorStore         from "llms/src/VectorStore/index.js";
+import SectionResolver     from "llms/src/actions/query/SectionResolver.js";
+import buildAnalyze        from "llms/src/xenova/buildAnalyzeQuery/index.js";
+import search              from "llms/src/VectorStore/search.js";
+import unionHits           from "llms/src/actions/query/unionHits.js";
+import serializeQueryContext from "llms/src/xenova/serializeQueryContext.js";
+import prewarm             from "llms/src/xenova/prewarm.js";
+import { MAX_OUTPUT_ROWS } from "llms/src/VectorStore/constants.js";
 
 const QUERIES = process.argv.slice(2).length
   ? [process.argv.slice(2).join(" ")]
