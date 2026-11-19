@@ -49,7 +49,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # server/
 REPO="$(cd "$HERE/.." && pwd)"
 PROFILE="${AWS_PROFILE:-pp}"
-REGION="${AWS_REGION:-us-east-1}"
+REGION="${AWS_REGION:-us-west-2}"
 NODE_IMAGE="node:24"
 ONLY_CHECK=0
 SKIP_HEALTH=0
@@ -130,15 +130,19 @@ SHA="$(git -C "$REPO" rev-parse HEAD)"
 [[ "$SHA" == "$(git -C "$REPO" rev-parse origin/main)" ]] \
   || fail "This commit isn't origin/main. Push it, or check out main and pull — the box should run what GitHub has."
 
-INSTANCE="$(aws ec2 describe-instances --profile "$PROFILE" --region "$REGION" \
+read -r INSTANCE INSTANCE_IP <<<"$(aws ec2 describe-instances --profile "$PROFILE" --region "$REGION" \
   --filters "Name=tag:App,Values=personal-page" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[].Instances[].InstanceId' --output text)"
+  --query 'Reservations[].Instances[].[InstanceId,PublicIpAddress]' --output text)"
 [[ -n "$INSTANCE" ]] || fail "No running instance tagged App=personal-page."
 
-# The bucket name is globally unique, so a second region needs its own.
-# ARTIFACT_BUCKET overrides it outright; otherwise BUCKET_SUFFIX is appended,
-# matching the BucketSuffix parameter in infra/bootstrap.yml.
-BUCKET="${ARTIFACT_BUCKET:-personal-page-artifacts-$(aws sts get-caller-identity --profile "$PROFILE" --query Account --output text)${BUCKET_SUFFIX:-}}"
+# The bucket name is globally unique, so each region needs its own.
+# ARTIFACT_BUCKET overrides it outright; otherwise the region's suffix is
+# appended.
+# The us-east-1 bucket predates the suffix scheme and carries none; every other
+# region appends its own, matching the BucketSuffix parameter in
+# infra/bootstrap.yml. Set BUCKET_SUFFIX="" to force the unsuffixed name.
+BUCKET_SUFFIX="${BUCKET_SUFFIX-$([[ "$REGION" == "us-east-1" ]] || echo "-$REGION")}"
+BUCKET="${ARTIFACT_BUCKET:-personal-page-artifacts-$(aws sts get-caller-identity --profile "$PROFILE" --query Account --output text)${BUCKET_SUFFIX}}"
 
 echo "  commit    ${SHA:0:7}"
 echo "  instance  $INSTANCE"
@@ -257,10 +261,23 @@ if [[ "$SKIP_HEALTH" == 1 ]]; then
   printf '\nshipped %s (health check skipped)\n' "${SHA:0:7}"; exit 0
 fi
 
+# Pinned to the instance we just shipped to, not to whatever DNS resolves to.
+# During a region migration the public name still points at the OLD box, so an
+# unpinned curl reports a green ship against a machine that received nothing.
+# --resolve keeps SNI and certificate validation on the real hostname.
 step "health"
+HEALTH_URL="https://api.william-brendel.com/health"
+PIN=()
+if [[ -n "${INSTANCE_IP:-}" && "$INSTANCE_IP" != "None" ]]; then
+  PIN=(--resolve "api.william-brendel.com:443:$INSTANCE_IP")
+  echo "  checking  $INSTANCE_IP (pinned)"
+else
+  echo "  checking  DNS (instance has no public IP)"
+fi
 for _ in $(seq 1 30); do
-  if curl -fsS --max-time 10 https://api.william-brendel.com/health 2>/dev/null | grep -q '"ok":true'; then
-    printf '\nshipped %s — https://api.william-brendel.com/health is answering\n' "${SHA:0:7}"
+  if curl -fsS --max-time 10 "${PIN[@]}" "$HEALTH_URL" 2>/dev/null | grep -q '"ok":true'; then
+    printf '\nshipped %s — %s is answering on %s\n' \
+      "${SHA:0:7}" "$HEALTH_URL" "${INSTANCE_IP:-DNS}"
     exit 0
   fi
   sleep 5

@@ -15,17 +15,19 @@
 
 ## It is live
 
-Deployed 2026-11-10. `https://api.william-brendel.com` serves the corpus over
-TLS from a t4g.micro in us-east-1, and `william-brendel.com` talks to it.
+Deployed 2026-11-10; **migrated to us-west-2 (Oregon) on 2026-11-19**.
+`https://api.william-brendel.com` serves the corpus over TLS from a t4g.micro
+in us-west-2, and `william-brendel.com` talks to it.
 
 | | |
 |---|---|
-| instance | t4g.micro, us-east-1a, tagged `App=personal-page` |
+| instance | t4g.micro, us-west-2a, tagged `App=personal-page` |
 | address | an Elastic IP; the `api` A record at GoDaddy points at it |
 | certificate | Let's Encrypt, auto-renewing, via Caddy |
-| memory | 344 MB of 910 MB used; 2 GB swap, untouched |
-| disk | 65% of 8 GB with two releases kept |
-| boot | engine ready in 1.5s, 50 documents |
+| memory | 342 MB of 910 MB used; 2 GB swap, untouched |
+| disk | 59% of 8 GB |
+| boot | engine ready in 2.3s, 61 documents, 384 dimensions |
+| starters | 14/14 answered from the corpus, 248 sections indexed |
 
 **Deploy with `npm --prefix server run ship`** — from the Mac, the way the
 larger projects on it do. The GitHub workflow is the backup and needs no maintenance to stay
@@ -141,7 +143,7 @@ longer right, and the reason is worth knowing before you commit:
 it is an Elastic IP or not — $0.005/hour, **$3.65/month**, on top of the
 instance. That alone eats the old budget.
 
-us-east-1, on-demand, approximate:
+us-west-2, on-demand, approximate:
 
 | Item | $/month |
 |---|---|
@@ -251,11 +253,13 @@ where the identity stack is marked "run ONCE, by an admin" — you run these.
 Your `will` profile has no region set.
 
 ```bash
-aws configure set region us-east-1 --profile will
+aws configure set region us-west-2 --profile will
 ```
 
-us-east-1: cheapest, and your default VPC `your default VPC` is already
-there.
+**us-west-2 (Oregon) is the default region for every project here.** It
+prices the same as us-east-1 for everything this uses, and it is markedly
+less prone to the correlated outages us-east-1 is famous for. Pick it unless
+something forces otherwise.
 
 ### 2b. Turn on a budget alarm before anything can cost money
 
@@ -332,7 +336,7 @@ Browser ──► william-brendel.com          GitHub Pages (unchanged)
                       │
                       ▼
             ┌───────────────────────────────┐
-            │ EC2 t4g.micro, us-east-1      │
+            │ EC2 t4g.micro, us-west-2      │
             │                               │
             │  Caddy :443  ── TLS, auto     │  Let's Encrypt, auto-renew
             │     │                         │
@@ -446,71 +450,50 @@ is privilege escalation), anything in Billing, anything touching your other
 accounts, and `ec2:TerminateInstances` (I will ask you to confirm a rebuild
 rather than hold the power to delete the box).
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    { "Sid": "SeeTheAccount", "Effect": "Allow",
-      "Action": ["ec2:Describe*", "cloudformation:Describe*", "cloudformation:List*",
-                 "cloudwatch:Describe*", "cloudwatch:Get*", "cloudwatch:List*",
-                 "s3:ListAllMyBuckets", "ssm:Describe*", "ssm:List*"],
-      "Resource": "*" },
+**The policy is generated, not pasted.** It lives in
+[`server/infra/make-operator-policy.sh`](infra/make-operator-policy.sh), which
+fills in this account's ID at run time — the repo is public and GitHub Pages
+serves it, so no real identifiers are committed. That script is the source of
+truth; a copy inline here drifts, and did.
 
-    { "Sid": "RunTheOneInstance", "Effect": "Allow",
-      "Action": ["ec2:RunInstances", "ec2:CreateTags", "ec2:StartInstances",
-                 "ec2:StopInstances", "ec2:RebootInstances",
-                 "ec2:ModifyInstanceAttribute", "ec2:CreateSecurityGroup",
-                 "ec2:AuthorizeSecurityGroupIngress", "ec2:RevokeSecurityGroupIngress",
-                 "ec2:AllocateAddress", "ec2:AssociateAddress", "ec2:DisassociateAddress"],
-      "Resource": "*",
-      "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-1" } } },
-
-    { "Sid": "HandTheBoxItsRole", "Effect": "Allow",
-      "Action": "iam:PassRole",
-      "Resource": "arn:aws:iam::<ACCOUNT_ID>:role/personal-page-instance",
-      "Condition": { "StringEquals": { "iam:PassedToService": "ec2.amazonaws.com" } } },
-
-    { "Sid": "DeployAndShell", "Effect": "Allow",
-      "Action": ["ssm:SendCommand", "ssm:GetCommandInvocation",
-                 "ssm:StartSession", "ssm:TerminateSession",
-                 "ssm:DescribeSessions", "ssm:DescribeInstanceInformation"],
-      "Resource": "*",
-      "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-1" } } },
-
-    { "Sid": "ArtifactsAndModels", "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket",
-                 "s3:GetBucketLocation", "s3:GetObjectVersion"],
-      "Resource": ["arn:aws:s3:::personal-page-artifacts-<ACCOUNT_ID>",
-                   "arn:aws:s3:::personal-page-artifacts-<ACCOUNT_ID>/*"] },
-
-    { "Sid": "ReadConfigNotSecrets", "Effect": "Allow",
-      "Action": ["ssm:GetParameter", "ssm:GetParameters"],
-      "Resource": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/personal-page/*" },
-
-    { "Sid": "Watchdog", "Effect": "Allow",
-      "Action": ["cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms",
-                 "logs:CreateLogGroup", "logs:PutRetentionPolicy",
-                 "logs:GetLogEvents", "logs:FilterLogEvents",
-                 "logs:DescribeLogGroups", "logs:DescribeLogStreams"],
-      "Resource": "*",
-      "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-1" } } },
-
-    { "Sid": "AlarmEmail", "Effect": "Allow",
-      "Action": ["sns:CreateTopic", "sns:Subscribe", "sns:GetTopicAttributes",
-                 "sns:SetTopicAttributes", "sns:ListSubscriptionsByTopic"],
-      "Resource": "arn:aws:sns:us-east-1:<ACCOUNT_ID>:personal-page-alarms" }
-  ]
-}
+```bash
+bash server/infra/make-operator-policy.sh   # -> /tmp/pp-operator-policy.json
 ```
 
-Two notes on that policy:
+What it grants, in shape:
 
-- **`ssm:GetParameter` on `/personal-page/*` does include the Anthropic key.**
-  If you would rather I never be able to read it, drop that statement — the
-  instance profile reads it at boot, and I never need to. I have kept it only
-  so I can verify the parameter *exists*; `ssm:DescribeParameters` under
-  "SeeTheAccount" already does that without exposing values, so **dropping it
-  costs nothing.** My recommendation is to drop it.
+| Sid | why |
+|---|---|
+| `SeeTheAccount` | read-only `Describe*`/`List*` across EC2, CFN, CloudWatch, SSM, S3 |
+| `LaunchOnlySmallArmInstances` | `RunInstances` capped to `t4g.nano/micro/small` — worst case ~$16/month, not hundreds |
+| `RunInstancesSupportingResources` | the image, subnet, ENI, volume, SG the launch also touches |
+| `ResizeOnlyToSmallArm` | the same cap on `ModifyInstanceAttribute`, so it cannot be resized around |
+| `ManageTheInstance` | start/stop/reboot, tags, security-group rules, Elastic IPs |
+| `HandTheBoxItsRole` | `iam:PassRole` for `personal-page-instance` only, to EC2 only |
+| `DeployAndShell` | `ssm:SendCommand` and Session Manager — how every deploy and shell happens |
+| `ArtifactsAndModels` | the one artifacts bucket for this region |
+| `ConfirmTheKeyExistsWithoutReadingIt` | `ssm:DescribeParameters` only |
+| `Watchdog` | alarms and log groups |
+| `AlarmEmail` | the one SNS topic, region-pinned |
+
+Everything but `SeeTheAccount`, `HandTheBoxItsRole` and the two parameter/S3
+statements is pinned with `aws:RequestedRegion`, so this identity cannot
+quietly stand something up in a region nobody is watching.
+
+**During the Oregon migration the live policy is version 3**, which allows
+*both* `us-east-1` and `us-west-2` and names both buckets, so the old box
+stays reachable as a rollback. The generator above now emits the
+**single-region us-west-2** policy — that is the version to publish once
+us-east-1 is torn down, not before.
+
+Notes on that policy:
+
+- ~~`ssm:GetParameter` on `/personal-page/*` includes the Anthropic key.~~
+  **Dropped.** The statement is gone; what remains is
+  `ConfirmTheKeyExistsWithoutReadingIt`, which grants `ssm:DescribeParameters`
+  and nothing else. That confirms the parameter *exists* without exposing a
+  value, so the key cannot be read by anything but the box itself, which
+  fetches it at boot through the instance profile. Dropping it cost nothing.
 - ~~`ec2:RunInstances` is broad enough to launch an expensive instance.~~
   **Fixed 2026-11-10.** Instance type is capped at `t4g.nano/micro/small`, so
   the worst launch this identity can make costs about $16/month rather than
@@ -521,11 +504,17 @@ Two notes on that policy:
   `ec2:InstanceType` exists only in the instance context, so a single
   statement requiring it denies the whole call. The instance resource is split
   from the supporting ones.
-- The alarm `recover` and `reboot` actions use `arn:aws:automate:us-east-1:ec2:*`
+- The alarm `recover` and `reboot` actions use `arn:aws:automate:<region>:ec2:*`
   targets, which need no service role — so nothing here requires IAM writes.
+  **These are region-local**: an alarm in us-west-2 must name the us-west-2
+  ARN, and so must its SNS topic. Alarms do not migrate with the instance;
+  they are recreated per region.
 - **You will have to click a confirmation link.** An SNS email subscription is
   pending until the address confirms it, and an unconfirmed topic silently
   delivers nothing. Worth testing the alarm once rather than trusting it.
+  The us-east-1 subscription is confirmed; the **us-west-2 topic
+  `personal-page-alarms` was created on 2026-11-19 and its subscription is
+  still pending** until the address confirms it.
 
 Then:
 
@@ -541,7 +530,7 @@ aws iam attach-user-policy --user-name personal-page-operator --policy-arn "$ARN
 
 # Then, in your own terminal — this prints a secret:
 aws iam create-access-key --user-name personal-page-operator --profile will
-aws configure --profile pp        # region us-east-1
+aws configure --profile pp        # region us-west-2
 ```
 
 and every AWS command I run names `--profile pp` explicitly, so it is visible

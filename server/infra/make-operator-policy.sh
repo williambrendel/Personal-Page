@@ -44,10 +44,16 @@
 set -euo pipefail
 
 PROFILE="${AWS_PROFILE:-will}"
-REGION="${AWS_REGION:-us-east-1}"
+REGION="${AWS_REGION:-us-west-2}"
 OUT="${1:-/tmp/pp-operator-policy.json}"
 
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text --profile "$PROFILE")"
+
+# The us-east-1 bucket predates the suffix scheme and carries none; every other
+# region appends its own, matching the BucketSuffix parameter in bootstrap.yml
+# and the same rule in scripts/ship.sh.
+BUCKET_SUFFIX="${BUCKET_SUFFIX-$([[ "$REGION" == "us-east-1" ]] || echo "-$REGION")}"
+BUCKET="personal-page-artifacts-${ACCOUNT}${BUCKET_SUFFIX}"
 
 cat > "$OUT" <<JSON
 {
@@ -108,8 +114,8 @@ cat > "$OUT" <<JSON
     { "Sid": "ArtifactsAndModels", "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket",
                  "s3:GetBucketLocation", "s3:GetObjectVersion"],
-      "Resource": ["arn:aws:s3:::personal-page-artifacts-${ACCOUNT}",
-                   "arn:aws:s3:::personal-page-artifacts-${ACCOUNT}/*"] },
+      "Resource": ["arn:aws:s3:::${BUCKET}",
+                   "arn:aws:s3:::${BUCKET}/*"] },
 
     { "Sid": "ConfirmTheKeyExistsWithoutReadingIt", "Effect": "Allow",
       "Action": ["ssm:DescribeParameters"],

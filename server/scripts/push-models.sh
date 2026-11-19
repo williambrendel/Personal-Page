@@ -2,7 +2,7 @@
 #
 # Upload the embedding model cache to the artifact bucket, once.
 #
-#   npm run push-models                 # uses profile "pp", region us-east-1
+#   npm run push-models                 # uses profile "pp", region us-west-2
 #   AWS_PROFILE=will npm run push-models
 #
 # Why this exists
@@ -27,7 +27,7 @@
 set -euo pipefail
 
 PROFILE="${AWS_PROFILE:-pp}"
-REGION="${AWS_REGION:-us-east-1}"
+REGION="${AWS_REGION:-us-west-2}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CACHE="$HERE/.model_cache"
 
@@ -37,7 +37,11 @@ if [ ! -d "$CACHE" ]; then
 fi
 
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text --profile "$PROFILE")"
-BUCKET="personal-page-artifacts-${ACCOUNT}"
+# The us-east-1 bucket predates the suffix scheme and carries none; every other
+# region appends its own, matching the BucketSuffix parameter in
+# infra/bootstrap.yml. Set BUCKET_SUFFIX="" to force the unsuffixed name.
+BUCKET_SUFFIX="${BUCKET_SUFFIX-$([[ "$REGION" == "us-east-1" ]] || echo "-$REGION")}"
+BUCKET="${ARTIFACT_BUCKET:-personal-page-artifacts-${ACCOUNT}${BUCKET_SUFFIX}}"
 SIZE="$(du -sh "$CACHE" | cut -f1)"
 
 echo "  from   $CACHE  ($SIZE)"

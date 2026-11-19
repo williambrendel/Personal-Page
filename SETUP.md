@@ -14,7 +14,7 @@ without the accounts behind it.
 A static site (`index.html`, `css/`, `scripts/`, `assets/`) served by GitHub
 Pages at `william-brendel.com`, and a small Node API in `server/` that answers
 questions about the corpus in `server/data/markdowns/`. The API runs on one
-t4g.micro in us-east-1 behind Caddy; see [server/DEPLOY.md](server/DEPLOY.md)
+t4g.micro in us-west-2 (Oregon) behind Caddy; see [server/DEPLOY.md](server/DEPLOY.md)
 for the live details and the architecture.
 
 Retrieval is local: a flat vector file, embedded with a bundled ONNX model. No
