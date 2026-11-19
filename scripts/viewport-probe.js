@@ -1,5 +1,3 @@
-"use strict"
-
 // --------------------------------------------------------------------------
 // What the viewport actually is, on the device it actually is.
 //

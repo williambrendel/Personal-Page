@@ -18,6 +18,17 @@
  *
  * Run it after touching anything under css/ or scripts/, before committing.
  * Running it when nothing changed is a no-op and says so.
+ *
+ *   npm --prefix server run stamp -- --verify
+ *
+ * --verify writes nothing and exits 1 if any stamp is out of date. It exists
+ * because "run it before committing" is a habit, and the habit failed: on
+ * 2026-11-19 css/common.css and css/thinking-loader.css were found carrying
+ * stamps for contents they no longer had, so every returning visitor kept
+ * the cached stylesheet — the exact failure the paragraph above describes,
+ * recurring because nothing checked. ship.sh now runs this in preflight
+ * alongside the corpus manifest, so a stale stamp stops a deploy instead of
+ * reaching visitors.
  */
 
 import fs from "node:fs";
@@ -27,10 +38,25 @@ import crypto from "node:crypto";
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const HTML = path.join(ROOT, "index.html");
 
+const VERIFY = process.argv.includes("--verify");
+
+/**
+ * In --verify mode every write goes to this map instead of the disk, and
+ * every read prefers it. That way verification runs the *same* fixed-point
+ * algorithm as a real stamping pass — a separate checker could disagree with
+ * the stamper, which is the bug it is meant to catch.
+ */
+const pending = new Map();
+const readText = (file) => pending.get(file) ?? fs.readFileSync(file, "utf8");
+const writeText = (file, text) => {
+  if (VERIFY) pending.set(file, text);
+  else fs.writeFileSync(file, text);
+};
+
 /** 8 hex characters: collision-proof enough for cache keys on one site. */
 const stampFor = (file) => crypto
   .createHash("sha256")
-  .update(fs.readFileSync(file))
+  .update(pending.has(file) ? Buffer.from(pending.get(file)) : fs.readFileSync(file))
   .digest("hex")
   .slice(0, 8);
 
@@ -71,7 +97,7 @@ const stampDependencies = () => {
     let changed = false;
 
     for (const file of files) {
-      const text = fs.readFileSync(file, "utf8");
+      const text = readText(file);
       let next = text;
 
       for (const pattern of LOCAL_REF) {
@@ -83,7 +109,7 @@ const stampDependencies = () => {
       }
 
       if (next !== text) {
-        fs.writeFileSync(file, next);
+        writeText(file, next);
         changed = true;
       }
     }
@@ -98,7 +124,7 @@ const stampDependencies = () => {
 const main = () => {
   const passes = stampDependencies();
   if (passes) console.log(`Stamped local imports (${passes} pass(es)).`);
-  let html = fs.readFileSync(HTML, "utf8");
+  let html = readText(HTML);
   const before = html;
   const touched = [];
 
@@ -118,12 +144,32 @@ const main = () => {
     },
   );
 
+  if (html !== before) writeText(HTML, html);
+
+  if (VERIFY) {
+    // Anything the algorithm wanted to write is a file whose stamps no
+    // longer match its contents.
+    const stale = [...pending.entries()]
+      .filter(([file, text]) => text !== fs.readFileSync(file, "utf8"))
+      .map(([file]) => path.relative(ROOT, file));
+
+    if (!stale.length) {
+      console.log("stamps: OK — every ?v= matches its file");
+      return;
+    }
+    console.error("stamps: STALE — these carry a hash for contents they no longer have:");
+    for (const f of stale) console.error(`  ${f}`);
+    console.error("\n  Returning visitors keep the cached version until the stamp moves.");
+    console.error("  Run: npm --prefix server run stamp");
+    process.exitCode = 1;
+    return;
+  }
+
   if (html === before) {
     console.log("Already current — nothing to stamp.");
     return;
   }
 
-  fs.writeFileSync(HTML, html);
   console.log(`Stamped ${touched.length} reference(s) in index.html:`);
   for (const t of touched) console.log(`  ${t}`);
 };

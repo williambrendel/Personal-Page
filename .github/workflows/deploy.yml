@@ -89,6 +89,13 @@ jobs:
         working-directory: server
         run: npm run verify
 
+      # A stale ?v= stamp is invisible here and visible to every returning
+      # visitor, who keeps the cached stylesheet because the URL never moved.
+      # ship.sh gates on this too; CI is the backup path, so it gates as well.
+      - name: Verify the cache stamps match their files
+        working-directory: server
+        run: npm run stamp -- --verify
+
       - name: Package
         id: package
         run: |

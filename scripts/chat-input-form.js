@@ -1,9 +1,7 @@
-"use strict"
-
-import { content, displayTextContent } from "./content.js?v=bc5dff6f";
-import { fastRead, plainRead, fastReadOn, rememberFastRead } from "./bionic.js?v=50e4dccf";
-import { createThinkingNode } from "./createThinkingNode.js?v=a6fd0ae7";
-import { ask } from "./api.js?v=091fa826";
+import { content, displayTextContent } from "./content.js?v=36d10bfe";
+import { fastRead, plainRead, fastReadOn, rememberFastRead } from "./bionic.js?v=f2b591e7";
+import { createThinkingNode } from "./createThinkingNode.js?v=97a7db07";
+import { ask } from "./api.js?v=59a261c4";
 
 // --------------------------------------------------------------------------
 // Cached DOM references (queried once for performance & clarity)

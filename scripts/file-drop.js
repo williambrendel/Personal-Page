@@ -1,5 +1,3 @@
-"use strict"
-
 // --------------------------------------------------------------------------
 // Drop a questionnaire, get it back answered
 //
@@ -29,7 +27,7 @@
 // phone. Below the breakpoint this module binds nothing at all.
 // --------------------------------------------------------------------------
 
-import { API_BASE } from "./api.js?v=091fa826";
+import { API_BASE } from "./api.js?v=59a261c4";
 
 /** Past this, the rest come back listed as unanswered rather than charged for. */
 const MAX_QUESTIONS = 20;
@@ -178,7 +176,7 @@ export { MAX_QUESTIONS, DESKTOP, READERS, extensionOf, questionsIn, csvCells, an
 // The drop target, and what happens after
 // --------------------------------------------------------------------------
 
-import { writeAnswers, answeredName } from "./file-drop-writers.js?v=7fb10eb9";
+import { writeAnswers, answeredName } from "./file-drop-writers.js?v=bfd54112";
 
 const overlay = () => {
   const el = document.createElement("div");

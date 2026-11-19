@@ -1,5 +1,3 @@
-"use strict"
-
 // --------------------------------------------------------------------------
 // The answered file, in the format it arrived as
 //

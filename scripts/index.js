@@ -1,8 +1,8 @@
-import "./chat-input-form.js?v=2135184f";
-import "./starter-chips.js?v=8b4456db";
-import "./quick-links.js?v=b0563e18";
-import "./more.js?v=71249732";
-import "./file-drop.js?v=dcf1269e";
+import "./chat-input-form.js?v=a0917957";
+import "./starter-chips.js?v=c4f1dbe3";
+import "./quick-links.js?v=5a889ae6";
+import "./more.js?v=ac781f64";
+import "./file-drop.js?v=e0db3d38";
 
 // ?viewport prints what the viewport units actually resolve to on the
 // device in hand. Nothing loads it otherwise. See scripts/viewport-probe.js.

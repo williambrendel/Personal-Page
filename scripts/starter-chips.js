@@ -1,5 +1,3 @@
-"use strict"
-
 // --------------------------------------------------------------------------
 // Opening suggestions
 //
@@ -22,8 +20,8 @@
 // backend — asks the normal way and nothing looks different.
 // --------------------------------------------------------------------------
 
-import { API_BASE } from "./api.js?v=091fa826";
-import { showPreloaded, registerAnswers, askAsChip } from "./chat-input-form.js?v=2135184f";
+import { API_BASE } from "./api.js?v=59a261c4";
+import { showPreloaded, registerAnswers, askAsChip } from "./chat-input-form.js?v=a0917957";
 
 const container = document.getElementById("starter-chips");
 const chatContainer = document.getElementById("chat-input-container");

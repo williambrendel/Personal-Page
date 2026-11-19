@@ -18,6 +18,8 @@
 #              so what ships is what is on GitHub, not what is on this Mac
 #   2. corpus: npm run verify, because section ranges are byte offsets and a
 #              corpus out of sync with its vectors returns misaligned text
+#  2b. stamps: npm run stamp -- --verify, because a stale ?v= leaves every
+#              returning visitor on the cached stylesheet
 #              rather than an error
 #   3. build:  node_modules inside a linux/arm64 container
 #   4. ship:   tarball to S3, SSM swaps a symlink and restarts, health check
@@ -152,6 +154,15 @@ echo "  identity  $(aws sts get-caller-identity --profile "$PROFILE" --query Arn
 # ── 2. The corpus matches its vectors ────────────────────────────────────
 step "corpus"
 ( cd "$HERE" && npm run verify --silent ) || fail "Corpus is out of sync with its vectors. Run: npm --prefix server run ingest"
+
+# ── 2b. The cache stamps match the files they claim ──────────────────────
+# A stale ?v= is invisible at deploy time and visible to every returning
+# visitor, who keeps the cached stylesheet because the URL never moved.
+# It happened on 2026-11-10 and again on 2026-11-19, both times because
+# stamping was a habit rather than a gate. Now it is a gate.
+step "stamps"
+( cd "$HERE" && npm run stamp --silent -- --verify ) \
+  || fail "Cache stamps are stale. Run: npm --prefix server run stamp"
 
 [[ "$ONLY_CHECK" == 1 ]] && { printf '\nchecks passed; stopping before the build (--check).\n'; exit 0; }
 

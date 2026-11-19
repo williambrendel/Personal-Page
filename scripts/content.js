@@ -1,7 +1,5 @@
-"use strict"
-
-import { toFragment } from "./markdown.js?v=3ba58513";
-import { fastRead, fastReadOn } from "./bionic.js?v=50e4dccf";
+import { toFragment } from "./markdown.js?v=3ea1ecb6";
+import { fastRead, fastReadOn } from "./bionic.js?v=f2b591e7";
 
 // --------------------------------------------------------------------------
 // Cached DOM references (queried once for performance & clarity)
