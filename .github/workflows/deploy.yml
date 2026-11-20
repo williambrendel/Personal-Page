@@ -73,7 +73,13 @@ jobs:
         working-directory: server
         env:
           NODE_AUTH_TOKEN: ${{ secrets.STACK_PACKAGES_TOKEN || secrets.LLMS_READ_TOKEN }}
-        run: npm ci
+        run: |
+          # .npmrc is gitignored and generated. Without it the
+          # @williambrendel scope resolves against the public registry and
+          # 404s, which reads as a missing package rather than a missing
+          # config. The file carries no secret; the token is in the env above.
+          cp .npmrc.example .npmrc
+          npm ci
 
       # `npm test` is the gate an unattended dependency update is judged on,
       # so a deploy runs exactly the same thing rather than a subset. It is

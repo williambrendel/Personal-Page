@@ -5,7 +5,14 @@
 # `gh auth token` already carries read:packages; in CI the deploy workflow
 # exports the same secret ship.sh uses.
 #
+#   cp server/.npmrc.example server/.npmrc
 #   export NODE_AUTH_TOKEN="$(gh auth token)"   # then npm install
+#
+# .npmrc itself is gitignored and generated: ship.sh writes it into the
+# build tree, the deploy workflow writes it before `npm ci`, and the stack's
+# update-apps writes its own from this file. Committing the real one put it
+# on a collision course with update-apps, which deletes .npmrc before it
+# commits — see server/.gitignore.
 #
 @williambrendel:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}

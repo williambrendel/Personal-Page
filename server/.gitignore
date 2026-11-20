@@ -3,3 +3,13 @@ node_modules/
 .env
 .DS_Store
 npm-debug.log
+# Written from .npmrc.example, never committed.
+#
+# The stack's update-apps deletes .npmrc before it commits — correctly, since
+# an .npmrc is environment config and in most apps it holds a token. Ours
+# held no secret (the token comes from NODE_AUTH_TOKEN), but it was tracked,
+# so `git add -A` would have staged its DELETION onto main. The next ship.sh
+# builds from `git archive`, so the container would have had no registry
+# config and npm ci would have failed with E401. Keeping it ignored and
+# generated removes the conflict instead of arguing with it.
+.npmrc

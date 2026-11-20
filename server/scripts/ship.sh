@@ -199,6 +199,14 @@ git -C "$REPO" archive --format=tar "$SHA" | tar -x -C "$WORK"
 [[ -d "$WORK/server" ]] || fail "The archive has no server/ — wrong commit?"
 [[ -f "$WORK/server/package-lock.json" ]] || fail "The archive has no server/package-lock.json."
 
+# .npmrc is gitignored, so the archive has none: write it from the committed
+# example. It carries no secret — the token arrives as NODE_AUTH_TOKEN in the
+# container's environment — and it must exist before `npm ci`, or the
+# @williambrendel scope resolves against the public registry and 404s.
+[[ -f "$WORK/server/.npmrc.example" ]] \
+  || fail "The archive has no server/.npmrc.example — the private registry cannot be configured."
+cp "$WORK/server/.npmrc.example" "$WORK/server/.npmrc"
+
 # Prove the container can actually see the files before spending minutes on
 # a build that would fail confusingly. This is the check that was missing.
 docker run --rm --platform linux/arm64 -v "$WORK/server:/app" -w /app \
