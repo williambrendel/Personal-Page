@@ -25,7 +25,8 @@
     "stamp": "node scripts/stamp-site.js",
     "check-starters": "node scripts/check-starters.js",
     "follow-ups": "node scripts/follow-ups.js",
-    "query-baseline": "node scripts/query-baseline.js"
+    "query-baseline": "node scripts/query-baseline.js",
+    "check-imports": "node scripts/check-library-imports.js"
   },
   "author": "William Brendel",
   "license": "MIT",
