@@ -36,6 +36,69 @@ const MAX_QUESTIONS = 20;
 const DESKTOP = "(min-width: 768px)";
 
 /**
+ * mammoth's own browser build, pinned by hash. See `docx` below for why it
+ * is this file rather than the /+esm bundle every other reader here uses.
+ *
+ * The integrity hash is of the file jsDelivr serves for this exact version,
+ * verified by downloading it and hashing it rather than copied from
+ * anywhere. This is third-party code given a visitor's dropped document, so
+ * a swapped file should fail the load rather than read the document. SRI is
+ * safe here precisely because this is a published, immutable file — never
+ * put it on a /+esm URL, which jsDelivr generates on the fly and says so.
+ *
+ * If the pin ever starts failing, re-hash the served file before changing
+ * it, and treat a mismatch as worth understanding rather than overwriting:
+ *   curl -sL <src> | openssl dgst -sha384 -binary | openssl base64 -A
+ */
+const MAMMOTH = {
+  src: "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js",
+  integrity: "sha384-/cXAMbzovUIKbBERjPmR3SnPTh8siWr5lsvFYj1Uq4XP0yaJUZJmsh0YXyGv5P0y",
+};
+
+/**
+ * Load a classic (non-module) script once and resolve the global it defines.
+ *
+ * Deliberately the same shape as Pagebeat's `loadScriptGlobal`, which has
+ * the same reader and hit the same bug: the two should stay diffable so this
+ * can move into a shared library rather than drift into two versions.
+ *
+ * `crossOrigin` is required for the integrity check to run at all. A failed
+ * load is dropped from the cache and its tag removed, so a dropped
+ * connection does not disable the reader for the rest of the page's life.
+ */
+const SCRIPTS = new Map();
+
+const loadScriptGlobal = (name, { src, integrity }) => {
+  if (globalThis[name]) return Promise.resolve(globalThis[name]);
+
+  const already = SCRIPTS.get(src);
+  if (already) return already;
+
+  const pending = new Promise((resolve, reject) => {
+    const tag = Object.assign(document.createElement("script"), {
+      src,
+      integrity,
+      crossOrigin: "anonymous",
+      async: true,
+    });
+    tag.onload = () => (globalThis[name]
+      ? resolve(globalThis[name])
+      : reject(new Error(`${name} loaded but defined nothing`)));
+    tag.onerror = () => {
+      tag.remove();
+      reject(new Error("couldn't load the reader for that format"));
+    };
+    document.head.append(tag);
+  }).catch((err) => {
+    SCRIPTS.delete(src);
+    throw err;
+  });
+
+  SCRIPTS.set(src, pending);
+  return pending;
+};
+
+/**
  * Parsers, by extension. Loaded on demand, pinned, never at page load.
  *
  * Each returns plain text; finding the questions in it is one job, done
@@ -47,9 +110,31 @@ const READERS = {
   md:   async (file) => file.text(),
   csv:  async (file) => file.text(),
 
+  // The browser bundle, not the /+esm one, and not by preference.
+  //
+  // mammoth's jsDelivr ESM build statically imports
+  // bluebird@3.4.7/js/release/promise/+esm, and that bundle throws
+  // "Cannot read properties of undefined (reading 'isNode')" the moment it
+  // evaluates — so the failure is on the import, before any file is
+  // touched. Every .docx drop on the live site ended at the catch below
+  // showing that sentence to whoever dropped it. The other eight
+  // dependencies load cleanly: the bug is in jsDelivr's CommonJS-to-ESM
+  // conversion of bluebird, not in either library, and Pagebeat confirmed
+  // 1.9.1, 1.10.0 and 1.11.0 fail the same way — there is no version to
+  // upgrade to.
+  //
+  // mammoth.browser.min.js carries its own dependencies and has none of
+  // that interop. It is a classic script that defines a global rather than
+  // a module with exports, which is why loadScriptGlobal exists above.
+  // Verified end to end on the live origin against a generated .docx: the
+  // +esm path throws, this one returns the text. It still parses in the
+  // browser, so nothing about a dropped questionnaire reaches the server —
+  // which is the whole point of this module.
   docx: async (file) => {
-    const mammoth = await import("https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm");
-    const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    const mammoth = await loadScriptGlobal("mammoth", MAMMOTH);
+    const { value } = await mammoth.extractRawText({
+      arrayBuffer: await file.arrayBuffer(),
+    });
     return value;
   },
 

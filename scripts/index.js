@@ -2,7 +2,7 @@ import "./chat-input-form.js?v=a0917957";
 import "./starter-chips.js?v=c4f1dbe3";
 import "./quick-links.js?v=5a889ae6";
 import "./more.js?v=ac781f64";
-import "./file-drop.js?v=e0db3d38";
+import "./file-drop.js?v=4f9c4b2d";
 
 // ?viewport prints what the viewport units actually resolve to on the
 // device in hand. Nothing loads it otherwise. See scripts/viewport-probe.js.
