@@ -67,7 +67,29 @@ const EXPECTED_PATH = path.join(
   "baselines/golden-retrieval.json"
 );
 
-/** Loose enough for a runtime change, tight enough to catch a real one. */
+/**
+ * Loose enough for a runtime change, tight enough to catch a real one.
+ *
+ * 0.02, and not smaller, for a measured reason. Three sources of harmless
+ * score drift are known:
+ *
+ *   1.8e-5   llms' SIMD kernel rounding the query, on int16 files
+ *   2.0e-3   the same, on int8 files (this corpus is int16 — dtype 3)
+ *   8.0e-3   the embedding runtime changing: @xenova/transformers 2.17 to
+ *            @huggingface/transformers 4.3, going from llms 2.0.0 to 2.2.1,
+ *            which moved scores this much with every ranking unchanged
+ *
+ * The Libraries session proposed 1e-4, which covers the kernel but not the
+ * runtime: it would have failed the 2.2.1 upgrade, where nothing about
+ * retrieval actually changed. 0.02 clears the largest observed drift with
+ * 2.5x margin.
+ *
+ * It is not the real gate. Rankings are compared exactly, so any reordering
+ * fails whatever this is set to, and a row drifting across the 0.70 floor
+ * changes the row count, which is also structural. This bounds the one
+ * thing structure cannot see: every score moving together. The report prints
+ * the largest drift each run, so growth is visible before it matters.
+ */
 const SCORE_TOLERANCE = 0.02;
 
 /** The same set tune-floor.js calibrates against. `null` must retrieve nothing. */
