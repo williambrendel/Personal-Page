@@ -281,21 +281,32 @@ aws ssm put-parameter \
 
 Type the value yourself — I will not handle the key.
 
-### 2d. Create a fine-grained GitHub token for the private `llms` dependency
+### 2d. The token for the private `@williambrendel` packages
 
-`williambrendel/llms` is **private**, so `npm ci` needs read access. The
-larger system solves this with `LLMS_READ_TOKEN` as a BuildKit secret.
+The libraries are **private**, published to GitHub Packages, so `npm ci`
+needs `read:packages`. One token covers all of them:
+**`STACK_PACKAGES_TOKEN`**, a repo secret set for Actions and Dependabot.
 
-GitHub → Settings → Developer settings → **Fine-grained personal access
-token**: repository access = `williambrendel/llms` only, permission =
-**Contents: Read-only**, expiry 1 year. Then add it to this repo:
+It is already set on this repo. To replace or rotate it, the stack owns the
+command — run it from a `stack-mono` checkout so every app is set the same
+way:
 
 ```bash
-gh secret set LLMS_READ_TOKEN --repo williambrendel/Personal-Page
+npm run set-packages-token -- --repo williambrendel/Personal-Page
 ```
 
-The token is used **only inside the CI runner**, to build `node_modules`.
-The EC2 box never sees it.
+This replaced three per-library secrets — `LLMS_READ_TOKEN`,
+`AUTH_READ_TOKEN` and `NATIVE_WRAPPER_READ_TOKEN`. Nothing in this repo
+reads them any more; they still exist and can be deleted, which the same
+command offers to do. One token rather than one per library is the stack
+convention, and it is also what the registry needs: the scope is
+`@williambrendel`, not a single repository.
+
+The token is used **only where `node_modules` is built** — the CI runner, or
+the arm64 container `ship.sh` runs locally. The EC2 box never sees it, and
+it is never written into a committed file: `server/.npmrc` is generated from
+`server/.npmrc.example`, which expands `NODE_AUTH_TOKEN` from the
+environment. See `server/.gitignore` for why that file is not committed.
 
 ### 2e. Run the bootstrap stack (I will write it; you run it)
 
@@ -425,7 +436,7 @@ container:
 
 1. `workflow_dispatch`, main only, after the tests pass
 2. OIDC into `personal-page-deploy` — no keys anywhere
-3. `npm ci --omit=dev` using `LLMS_READ_TOKEN`, tar `server/` + `node_modules`
+3. `npm ci` using `STACK_PACKAGES_TOKEN`, tar `server/` + `node_modules`
 4. upload to `s3://<bucket>/releases/<sha>.tar.gz`
 5. `aws ssm send-command` → the box downloads it, swaps the symlink,
    `systemctl restart personal-page`
