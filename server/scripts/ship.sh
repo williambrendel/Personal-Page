@@ -8,7 +8,7 @@
 #   server/scripts/ship.sh --skip-health   roll out without waiting on DNS/TLS
 #
 #   AWS_PROFILE=pp         the identity to deploy with (default: pp)
-#   STACK_PACKAGES_TOKEN=... read:packages for the @williambrendel packages
+#   STACK_PACKAGES_TOKEN=... read:packages (optional; falls back to gh auth token)
 #                          (default: `gh auth token`)
 #
 # What it does, in order. Any failure stops it, nothing half-done:
@@ -122,14 +122,17 @@ aws sts get-caller-identity --profile "$PROFILE" >/dev/null 2>&1 \
 # is read:packages, not repo read. The container receives it as
 # NODE_AUTH_TOKEN, which is what server/.npmrc expands.
 #
-# STACK_PACKAGES_TOKEN is the stack-wide name, one token for every library
-# rather than one per library. LLMS_READ_TOKEN is still accepted so a deploy
-# works before and after that secret exists, and `gh auth token` covers a
-# local run on a machine already signed in. Drop the middle fallback once the
-# repo secret has been renamed.
-PACKAGES_TOKEN="${STACK_PACKAGES_TOKEN:-${LLMS_READ_TOKEN:-$(gh auth token 2>/dev/null || true)}}"
+# STACK_PACKAGES_TOKEN is the stack-wide name: one read:packages token for
+# every library rather than one per library. The per-library LLMS_READ_TOKEN
+# fallback is gone now that the repo secret exists.
+#
+# `gh auth token` stays, and is the path this actually takes in practice:
+# ship.sh is the primary deploy and runs on a signed-in Mac, so the
+# environment variable is for CI and for a run that wants to pin a specific
+# token.
+PACKAGES_TOKEN="${STACK_PACKAGES_TOKEN:-$(gh auth token 2>/dev/null || true)}"
 [[ -n "$PACKAGES_TOKEN" ]] \
-  || fail "No STACK_PACKAGES_TOKEN, no LLMS_READ_TOKEN, and 'gh auth token' gave nothing. The @williambrendel packages are private; the build cannot install them without read:packages."
+  || fail "No STACK_PACKAGES_TOKEN and 'gh auth token' gave nothing. The @williambrendel packages are private; the build cannot install them without read:packages."
 # Ask the registry itself, not the repo API: repo read and package read are
 # separate scopes, and a token with only the former used to pass this check
 # and then fail inside the container, where the error is far less obvious.

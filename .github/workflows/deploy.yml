@@ -65,14 +65,18 @@ jobs:
       # `grep git+ssh server/package-lock.json` now finds nothing.
       #
       # STACK_PACKAGES_TOKEN is the stack-wide secret: one read:packages
-      # token for every library rather than one per library. LLMS_READ_TOKEN
-      # is kept as a fallback so this workflow runs before and after the
-      # rename; drop it once the new secret exists. An unset secret
-      # interpolates to an empty string, so `||` picks the one that is there.
+      # token for every library rather than one per library.
+      #
+      # No fallback to the old LLMS_READ_TOKEN. A fallback would have bought
+      # nothing once the new secret existed: `||` only falls back on an empty
+      # secret, not on a present-but-wrong one, so it could not have rescued
+      # a bad token — it could only have hidden a missing one, and then
+      # broken when the old secrets were deleted. Missing or wrong, this
+      # fails at `npm ci` with E401, which names the cause.
       - name: Install
         working-directory: server
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.STACK_PACKAGES_TOKEN || secrets.LLMS_READ_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.STACK_PACKAGES_TOKEN }}
         run: |
           # .npmrc is gitignored and generated. Without it the
           # @williambrendel scope resolves against the public registry and
