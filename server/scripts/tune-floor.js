@@ -22,9 +22,8 @@ import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
 import VectorStore     from "@williambrendel/llms/src/VectorStore/index.js";
 import SectionResolver from "@williambrendel/llms/src/actions/query/SectionResolver.js";
 import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
-import search          from "@williambrendel/llms/src/VectorStore/search.js";
-import unionHits       from "@williambrendel/llms/src/actions/query/unionHits.js";
 import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
+import { retrieve }     from "@williambrendel/llms/src/actions/query/index.js";
 import { MAX_OUTPUT_ROWS } from "@williambrendel/llms/src/VectorStore/constants.js";
 
 // expected === null means "should retrieve nothing".
@@ -71,21 +70,33 @@ const main = async () => {
 
   console.log(`\n${store.length} documents.  ${GOLDEN.filter(g => g[1]).length} on-topic, ` +
               `${GOLDEN.filter(g => !g[1]).length} off-topic.\n`);
-  console.log("  floor   hit@1   hit@3    rows   offtopic-clean");
-  console.log("  " + "-".repeat(48));
+  console.log("  floor   hit@1   hit@3    rows   offtopic-clean   segs skipped");
+  console.log("  " + "-".repeat(62));
 
   for (const floor of FLOORS) {
     let h1 = 0, h3 = 0, onTopic = 0, rowSum = 0, offClean = 0, offTotal = 0;
+    let skippedTotal = 0;
 
     for (const { expected, a } of analyzed) {
-      const segs = a.segments.filter(s => s.classification?.label !== "CONVERSATIONAL");
-      const hits = unionHits(segs.map(s => search(store, s.vec, { floor })));
-
-      const rows = [];
-      for (const h of hits) {
-        if (resolver.resolve(h.documentId, h.range) !== null) rows.push(h);
-      }
-      const top = rows.slice(0, MAX_OUTPUT_ROWS);
+      // The engine's own retrieval, not a copy of it.
+      //
+      // This used to re-implement search + unionHits + resolve, and dropped
+      // every segment classified CONVERSATIONAL. The server does not: it
+      // skips one only when the classifier was confident
+      // (CONVERSATIONAL >= 0.7), and searches a weak win defensively in case
+      // a TECHNICAL segment was misread. On this golden set the two rules
+      // disagree about exactly the three off-topic queries, whose
+      // CONVERSATIONAL scores are 0.518, 0.535 and 0.593 — so the old
+      // offtopic-clean column reported that off-topic questions retrieve
+      // nothing, having never searched them.
+      const { results: top, skipped } = await retrieve({
+        analysis: a,
+        store,
+        resolver,
+        searchOptions: { floor },
+        maxOutputRows: MAX_OUTPUT_ROWS,
+      });
+      skippedTotal += skipped.length;
 
       if (expected === null) {
         offTotal++;
@@ -101,7 +112,8 @@ const main = async () => {
     const pct = (n, d) => d ? `${Math.round(100 * n / d)}%`.padStart(4) : "  — ";
     console.log(
       `  ${floor.toFixed(2)}    ${pct(h1, onTopic)}    ${pct(h3, onTopic)}   ` +
-      `${(rowSum / onTopic).toFixed(1).padStart(5)}   ${pct(offClean, offTotal)}`
+      `${(rowSum / onTopic).toFixed(1).padStart(5)}   ${pct(offClean, offTotal)}` +
+      `        ${String(skippedTotal).padStart(5)}`
     );
   }
   console.log();

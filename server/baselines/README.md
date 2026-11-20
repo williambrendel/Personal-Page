@@ -17,6 +17,28 @@ only checkable against a recorded before. The point of this folder is that
 | `query.txt` | `npm run query-baseline` | ~2¢ | the real HTTP path: grounded documentIds, chunk counts, actions |
 | `coverage.txt` | `npm run coverage` | ~6¢ | ANSWERED / THIN / DECLINED across the 50-question interview battery |
 
+## Two of these files measure a path the server never ran
+
+`tune-floor.txt` and `calibrate-gate.txt` were produced before step 8, by
+scripts that dropped **every** segment classified CONVERSATIONAL. The server
+drops one only when the classifier was confident, so those two files describe
+retrieval the engine does not perform.
+
+They are kept unedited, because they are the honest 2.0.0 record and
+overwriting them would destroy the drift history this folder exists for. But
+**their off-topic columns are not evidence of anything**:
+
+- `tune-floor.txt`'s "offtopic-clean 100%" at every floor reports that
+  off-topic questions retrieve nothing, having never searched them. Corrected,
+  it is 25% at floor 0.30 and 75% at the production floor of 0.70.
+- `calibrate-gate.txt`'s ten off-topic scores of `0.000` are not scores. The
+  real distribution is nine zeros and one 0.713.
+
+`step-8-eval-segment-filter.md` has the corrected numbers and the reasoning.
+Compare against those, not against these two columns. Everything else in this
+folder — `retrieve.txt`, `measure-actions.txt`, `check-starters.txt`,
+`coverage.txt`, `query.txt` — was unaffected and is still the reference.
+
 ## Why `retrieve.txt` carries the most weight
 
 It records cosine scores to three decimals. The migration's biggest

@@ -25,9 +25,8 @@ import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
 import VectorStore     from "@williambrendel/llms/src/VectorStore/index.js";
 import SectionResolver from "@williambrendel/llms/src/actions/query/SectionResolver.js";
 import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
-import search          from "@williambrendel/llms/src/VectorStore/search.js";
-import unionHits       from "@williambrendel/llms/src/actions/query/unionHits.js";
 import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
+import { retrieve }     from "@williambrendel/llms/src/actions/query/index.js";
 import gate            from "@williambrendel/llms/src/pipelines/rag/query/gate.js";
 
 /** Questions this corpus genuinely covers — drawn from what it actually contains. */
@@ -88,14 +87,32 @@ const main = async () => {
   const analyze = await buildAnalyze({ store, ...CONFIG.CLASSIFIER });
   const floor = CONFIG.RETRIEVAL?.floor ?? 0;
 
-  /** Top resolvable score for a query, mirroring what runQuery retrieves. */
+  /**
+   * Top resolvable score for a query, as the engine actually retrieves it.
+   *
+   * This used to claim it was "mirroring what runQuery retrieves" while
+   * doing something different: it dropped every segment classified
+   * CONVERSATIONAL, where the server skips one only when the classifier was
+   * confident (CONVERSATIONAL >= 0.7). It now calls the engine's own
+   * `retrieve`, so there is nothing left to mirror.
+   *
+   * This mattered most here, and quietly. Three of the four off-topic
+   * probes are single CONVERSATIONAL segments scoring 0.518 to 0.593 — below
+   * the skip threshold, so the server searches them. The old filter dropped
+   * all of them, hit `!segs.length`, and returned 0. Every off-topic score
+   * in this calibration was therefore a literal zero, and goodScore — which
+   * is meant to sit just above the highest off-topic score — was derived
+   * from a distribution that did not exist.
+   */
   const topScore = async (q) => {
     const a = await analyze(q);
-    const segs = a.segments.filter(s => s.classification?.label !== "CONVERSATIONAL");
-    if (!segs.length) return 0;
-    const hits = unionHits(segs.map(s => search(store, s.vec, { floor })));
-    const rows = hits.filter(h => resolver.resolve(h.documentId, h.range) !== null);
-    return rows.length ? rows[0].score : 0;
+    const { results } = await retrieve({
+      analysis: a,
+      store,
+      resolver,
+      searchOptions: { floor },
+    });
+    return results.length ? results[0].score : 0;
   };
 
   const answerable = [];
