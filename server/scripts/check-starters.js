@@ -24,7 +24,7 @@
  * starter, so it is not a test to run on a loop.
  */
 import "../config.js";
-import "llms/src/xenova/env.js";
+import "@williambrendel/llms/src/xenova/env.js";
 import CONFIG from "../config.js";
 import { build as buildStarters } from "../server/starters.js";
 

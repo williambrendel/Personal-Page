@@ -9,7 +9,7 @@
  * about a resume or a conversation.
  */
 import "../config.js";
-import "llms/src/xenova/env.js";
+import "@williambrendel/llms/src/xenova/env.js";
 import { scoresFor, SIMILAR } from "../server/actions.js";
 
 const WANTED = [

@@ -19,12 +19,12 @@ import CONFIG           from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-import "llms/src/xenova/env.js";
-import buildBinary      from "llms/src/actions/generate/binary/index.js";
-import vectorize        from "llms/src/xenova/vectorize.js";
-import claudeRun        from "llms/src/claude/index.js";
-import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
-import makeLimit        from "llms/src/utilities/makeLimit.js";
+import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
+import buildBinary      from "@williambrendel/llms/src/actions/generate/binary/index.js";
+import vectorize        from "@williambrendel/llms/src/xenova/vectorize.js";
+import claudeRun        from "@williambrendel/llms/src/claude/index.js";
+import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
+import makeLimit        from "@williambrendel/llms/src/utilities/makeLimit.js";
 import manifest         from "./manifest.js";
 
 const args      = process.argv.slice(2);
@@ -53,6 +53,7 @@ const main = async () => {
   }
 
   // Probe the embedding dimension once — encodeSections needs it up front.
+  await runtimeReady;
   const probe  = await vectorize("dimension probe");
   const vecDim = probe.length;
   console.log(`Embedding model ready — ${vecDim} dimensions.`);

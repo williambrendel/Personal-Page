@@ -13,15 +13,15 @@ import CONFIG              from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-import "llms/src/xenova/env.js";
-import VectorStore         from "llms/src/VectorStore/index.js";
-import SectionResolver     from "llms/src/actions/query/SectionResolver.js";
-import buildAnalyze        from "llms/src/xenova/buildAnalyzeQuery/index.js";
-import search              from "llms/src/VectorStore/search.js";
-import unionHits           from "llms/src/actions/query/unionHits.js";
-import serializeQueryContext from "llms/src/xenova/serializeQueryContext.js";
-import prewarm             from "llms/src/xenova/prewarm.js";
-import { MAX_OUTPUT_ROWS } from "llms/src/VectorStore/constants.js";
+import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
+import VectorStore         from "@williambrendel/llms/src/VectorStore/index.js";
+import SectionResolver     from "@williambrendel/llms/src/actions/query/SectionResolver.js";
+import buildAnalyze        from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
+import search              from "@williambrendel/llms/src/VectorStore/search.js";
+import unionHits           from "@williambrendel/llms/src/actions/query/unionHits.js";
+import serializeQueryContext from "@williambrendel/llms/src/xenova/serializeQueryContext.js";
+import prewarm             from "@williambrendel/llms/src/xenova/prewarm.js";
+import { MAX_OUTPUT_ROWS } from "@williambrendel/llms/src/VectorStore/constants.js";
 
 const QUERIES = process.argv.slice(2).length
   ? [process.argv.slice(2).join(" ")]
@@ -37,6 +37,7 @@ const QUERIES = process.argv.slice(2).length
     ];
 
 const main = async () => {
+  await runtimeReady;
   await prewarm(CONFIG.PREWARM);
 
   const [store, resolver] = await Promise.all([

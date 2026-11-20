@@ -19,7 +19,7 @@ import path   from "node:path";
 import crypto from "node:crypto";
 
 import CONFIG           from "../config.js";
-import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
+import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
 
 const MANIFEST_PATH = path.join(CONFIG.DATASET, "manifest.json");
 

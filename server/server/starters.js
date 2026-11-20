@@ -64,7 +64,7 @@ import fs   from "node:fs/promises";
 import path from "node:path";
 
 import CONFIG from "../config.js";
-import deriveDocumentId from "llms/src/utilities/deriveDocumentId.js";
+import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
 import { actionsFor } from "./actions.js";
 
 /** How many chips deep the page can go before it has to ask the API. */

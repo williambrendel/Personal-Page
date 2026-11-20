@@ -37,14 +37,18 @@ jobs:
         if: github.ref_name != 'main'
         run: echo "::error::deploys run from main only" && exit 1
 
-      # persist-credentials: false is load-bearing. By default checkout writes
-      # http.https://github.com/.extraheader into the repo's git config, an
-      # Authorization header for GITHUB_TOKEN. That header WINS over
-      # credentials supplied in a URL, so every git call in the workspace
-      # authenticates as this repo's token — which cannot read the private
-      # llms repo, producing "Repository not found" no matter which token we
-      # pass. Cost three runs to find, because the header is only mentioned
-      # in checkout's post-job cleanup.
+      # persist-credentials: false is no longer load-bearing, and is kept for
+      # hygiene: nothing in this workflow installs over git any more.
+      #
+      # It used to matter, and the reason is worth keeping. By default
+      # checkout writes http.https://github.com/.extraheader into the repo's
+      # git config — an Authorization header for GITHUB_TOKEN — and that
+      # header WINS over credentials supplied in a URL. So every git call in
+      # the workspace authenticated as this repo's token, which could not
+      # read the private llms repo, producing "Repository not found" no
+      # matter which token was passed. It cost three runs to find, because
+      # the header is only mentioned in checkout's post-job cleanup. Anyone
+      # who reintroduces a git dependency will meet it again.
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -53,32 +57,19 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # llms is a git dependency in a PRIVATE repo, and the lockfile resolves
-      # it over ssh, which the runner has no key for. Rewrite those URLs to
-      # https with the token supplied inline.
+      # The private libraries come from GitHub Packages now, not from git
+      # tags, so there is nothing to rewrite: server/.npmrc points the
+      # @williambrendel scope at the registry and expands NODE_AUTH_TOKEN,
+      # and npm authenticates directly. The git URL rewriting this used to
+      # need, and the script that did it, are gone with the git dependency —
+      # `grep git+ssh server/package-lock.json` now finds nothing.
       #
-      # A credential helper was tried first and failed in the worst way: it
-      # exits 0 when it cannot see the token, so git simply asked anonymously
-      # and GitHub answered "Repository not found" — which is what it says for
-      # a private repo you are not authorised for, rather than "denied". The
-      # result looked like a bad token or a missing repo and was neither.
-      #
-      # Inline is reliable because there is nothing to misfire. The token is a
-      # repo secret so Actions masks it in logs, and the runner is ephemeral.
-      # One token per library, not one token for all of them: a token wide
-      # enough to rewrite every williambrendel/ URL is a token that can read
-      # every private repo, and this deploy only installs llms. The other two
-      # are passed so that adding a dependency needs no change here; they are
-      # optional, and cannot fail a deploy that does not use them.
-      - name: Authenticate to the private library repos
-        env:
-          LLMS_READ_TOKEN: ${{ secrets.LLMS_READ_TOKEN }}
-          AUTH_READ_TOKEN: ${{ secrets.AUTH_READ_TOKEN }}
-          NATIVE_WRAPPER_READ_TOKEN: ${{ secrets.NATIVE_WRAPPER_READ_TOKEN }}
-        run: .github/scripts/library-tokens.sh
-
+      # Same secret as before, so there is nothing for the operator to
+      # re-create; what it needs is read:packages rather than repo read.
       - name: Install
         working-directory: server
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.LLMS_READ_TOKEN }}
         run: npm ci
 
       # Refuse to ship a corpus whose vectors no longer match its markdown.

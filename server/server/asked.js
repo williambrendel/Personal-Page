@@ -25,7 +25,7 @@
  * AI?") survives, and the near-duplicate at 0.747 slips through.
  */
 
-import vectorize from "llms/src/xenova/vectorize.js";
+import vectorize from "@williambrendel/llms/src/xenova/vectorize.js";
 
 const SIMILAR = 0.82;
 

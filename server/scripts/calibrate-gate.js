@@ -21,14 +21,14 @@
 import CONFIG from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR.
-import "llms/src/xenova/env.js";
-import VectorStore     from "llms/src/VectorStore/index.js";
-import SectionResolver from "llms/src/actions/query/SectionResolver.js";
-import buildAnalyze    from "llms/src/xenova/buildAnalyzeQuery/index.js";
-import search          from "llms/src/VectorStore/search.js";
-import unionHits       from "llms/src/actions/query/unionHits.js";
-import prewarm         from "llms/src/xenova/prewarm.js";
-import gate            from "llms/src/pipelines/rag/query/gate.js";
+import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
+import VectorStore     from "@williambrendel/llms/src/VectorStore/index.js";
+import SectionResolver from "@williambrendel/llms/src/actions/query/SectionResolver.js";
+import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
+import search          from "@williambrendel/llms/src/VectorStore/search.js";
+import unionHits       from "@williambrendel/llms/src/actions/query/unionHits.js";
+import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
+import gate            from "@williambrendel/llms/src/pipelines/rag/query/gate.js";
 
 /** Questions this corpus genuinely covers — drawn from what it actually contains. */
 const ANSWERABLE = [
@@ -79,6 +79,7 @@ const OFF_TOPIC = [
 ];
 
 const main = async () => {
+  await runtimeReady;
   await prewarm(CONFIG.PREWARM);
   const [store, resolver] = await Promise.all([
     VectorStore.create(CONFIG.DATASET),

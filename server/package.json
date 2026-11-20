@@ -30,9 +30,9 @@
   "author": "William Brendel",
   "license": "MIT",
   "dependencies": {
+    "@williambrendel/llms": "2.2.1",
     "cors": "^2.8.5",
     "dotenv": "^18.0.10",
-    "express": "^5.3.0",
-    "llms": "github:williambrendel/llms#v2.0.0"
+    "express": "^5.3.0"
   }
 }

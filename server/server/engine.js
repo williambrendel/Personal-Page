@@ -14,13 +14,20 @@ import CONFIG          from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
 // the ONNX model cache outside node_modules.
-import "llms/src/xenova/env.js";
-import VectorStore     from "llms/src/VectorStore/index.js";
-import SectionResolver from "llms/src/actions/query/SectionResolver.js";
-import buildAnalyze    from "llms/src/xenova/buildAnalyzeQuery/index.js";
-import runQuery        from "llms/src/actions/query/index.js";
-import prewarm         from "llms/src/xenova/prewarm.js";
-import claudeRun       from "llms/src/claude/index.js";
+//
+// `ready` is not decoration. This module configures the runtime inside an
+// async IIFE, so importing it for its side effects only schedules that work
+// — it does not finish it. Before llms 2.1 it happened to land first by
+// microtask order, which is luck, not sequencing. Awaiting it before
+// prewarm is what actually guarantees the cache directory and the
+// remote-model lock are in place before a model is loaded.
+import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
+import VectorStore     from "@williambrendel/llms/src/VectorStore/index.js";
+import SectionResolver from "@williambrendel/llms/src/actions/query/SectionResolver.js";
+import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
+import runQuery        from "@williambrendel/llms/src/actions/query/index.js";
+import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
+import claudeRun       from "@williambrendel/llms/src/claude/index.js";
 import manifest        from "../scripts/manifest.js";
 import { condense, preamble } from "./history.js";
 
@@ -30,6 +37,7 @@ const build = async () => {
   const started = Date.now();
 
   // Only the feature-extraction model. See CONFIG.PREWARM.
+  await runtimeReady;
   await prewarm(CONFIG.PREWARM);
 
   // Fail fast on a stale corpus. Section ranges are byte offsets into the

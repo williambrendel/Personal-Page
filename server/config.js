@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "node:path";
-import { VEC_DTYPE } from "llms/src/VectorStore/Document/constants.js";
-import Pricing from "llms/src/claude/Pricing.js";
+import { VEC_DTYPE } from "@williambrendel/llms/src/VectorStore/Document/constants.js";
+import Pricing from "@williambrendel/llms/src/claude/Pricing.js";
 
 // ESM hoists every import above the module body, so this runs AFTER the
 // imports above — unlike the require() it replaced, which ran before them.
@@ -23,6 +23,21 @@ const ROOT = import.meta.dirname;
 // dependencies depth-first in source order, so every module here imports
 // ../config.js above llms/src/xenova/env.js, and this runs first.
 process.env.XENOVA_CACHE_DIR ||= path.join(ROOT, ".model_cache");
+
+// In production, never reach HuggingFace at boot.
+//
+// llms defaults XENOVA_ALLOW_REMOTE_MODELS to "true", so if the runtime
+// wants a file .model_cache does not have, it downloads it instead of
+// failing. On a 1 GB t4g that is the worst of both outcomes: a slow boot
+// that may also exhaust memory, triggered by a missing file nobody noticed.
+// Failing loudly means the deploy's health check catches it and the old
+// release keeps serving.
+//
+// Left unlocked outside production on purpose: `npm run ingest` and a first
+// run on a new machine legitimately need to fetch the model once.
+if (process.env.NODE_ENV === "production") {
+  process.env.XENOVA_ALLOW_REMOTE_MODELS ||= "false";
+}
 
 /**
  * Current first-party Anthropic rates (USD per 1M tokens).

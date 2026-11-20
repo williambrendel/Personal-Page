@@ -28,7 +28,7 @@
  * vectorize call on the query — roughly 20ms — and no money.
  */
 
-import vectorize from "llms/src/xenova/vectorize.js";
+import vectorize from "@williambrendel/llms/src/xenova/vectorize.js";
 
 /**
  * Phrasings for each destination. The whole question is matched against

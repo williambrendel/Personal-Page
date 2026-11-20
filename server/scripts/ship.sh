@@ -117,12 +117,20 @@ command -v aws >/dev/null    || fail "The AWS CLI isn't installed."
 aws sts get-caller-identity --profile "$PROFILE" >/dev/null 2>&1 \
   || fail "AWS profile '$PROFILE' doesn't work. Try: aws sts get-caller-identity --profile $PROFILE"
 
+# The private dependency now comes from GitHub Packages rather than a git
+# tag, so what the token needs is read:packages, not repo read. Same variable
+# name and same repo secret as before, deliberately: nothing for the operator
+# to re-create. The container receives it as NODE_AUTH_TOKEN, which is what
+# server/.npmrc expands.
 LLMS_READ_TOKEN="${LLMS_READ_TOKEN:-$(gh auth token 2>/dev/null || true)}"
 [[ -n "$LLMS_READ_TOKEN" ]] \
-  || fail "No LLMS_READ_TOKEN and 'gh auth token' gave nothing. llms is private; the build cannot install it without read access."
+  || fail "No LLMS_READ_TOKEN and 'gh auth token' gave nothing. @williambrendel/llms is private; the build cannot install it without read:packages."
+# Ask the registry itself, not the repo API: repo read and package read are
+# separate scopes, and a token with only the former used to pass this check
+# and then fail inside the container, where the error is far less obvious.
 curl -sfS -H "Authorization: Bearer $LLMS_READ_TOKEN" \
-  https://api.github.com/repos/williambrendel/llms >/dev/null 2>&1 \
-  || fail "That token cannot read williambrendel/llms. Checked against the API, so this is the token, not git."
+  https://npm.pkg.github.com/@williambrendel%2fllms >/dev/null 2>&1 \
+  || fail "That token cannot read @williambrendel/llms from GitHub Packages. It needs read:packages — check with: gh auth status"
 
 git -C "$REPO" diff --quiet && git -C "$REPO" diff --cached --quiet \
   || fail "Working tree isn't clean. What ships should be a commit, not a desk state."
@@ -188,12 +196,14 @@ docker run --rm --platform linux/arm64 -v "$WORK/server:/app" -w /app \
 
 docker run --rm --platform linux/arm64 \
   -v "$WORK/server:/app" -w /app \
-  -e LLMS_READ_TOKEN="$LLMS_READ_TOKEN" \
+  -e NODE_AUTH_TOKEN="$LLMS_READ_TOKEN" \
   "$NODE_IMAGE" \
   bash -c '
     set -euo pipefail
-    git config --global url."https://x-access-token:${LLMS_READ_TOKEN}@github.com/williambrendel/".insteadOf "ssh://git@github.com/williambrendel/"
-    git config --global --add url."https://x-access-token:${LLMS_READ_TOKEN}@github.com/williambrendel/".insteadOf "git@github.com:williambrendel/"
+    # No git rewriting any more: server/.npmrc points the @williambrendel
+    # scope at GitHub Packages and expands NODE_AUTH_TOKEN from the
+    # environment, so npm authenticates without the token ever being written
+    # to a file in the image.
     npm ci --no-audit --no-fund
   ' || fail "The container build failed."
 

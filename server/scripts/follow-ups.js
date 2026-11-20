@@ -18,19 +18,19 @@
  */
 
 import "../config.js";
-import "llms/src/xenova/env.js";
+import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
 
 import fs   from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import CONFIG      from "../config.js";
-import VectorStore from "llms/src/VectorStore/index.js";
-import vectorize   from "llms/src/xenova/vectorize.js";
-import claudeRun   from "llms/src/claude/index.js";
-import makeLimit   from "llms/src/utilities/makeLimit.js";
-import prewarm     from "llms/src/xenova/prewarm.js";
-import buildAnalyze from "llms/src/xenova/buildAnalyzeQuery/index.js";
+import VectorStore from "@williambrendel/llms/src/VectorStore/index.js";
+import vectorize   from "@williambrendel/llms/src/xenova/vectorize.js";
+import claudeRun   from "@williambrendel/llms/src/claude/index.js";
+import makeLimit   from "@williambrendel/llms/src/utilities/makeLimit.js";
+import prewarm     from "@williambrendel/llms/src/xenova/prewarm.js";
+import buildAnalyze from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
 import { buildGraph } from "../server/starters.js";
 
 const args  = process.argv.slice(2);
@@ -80,13 +80,14 @@ const LLMS_SRC = process.env.LLMS_SRC
 const importRag = async () => (
   await import(LLMS_SRC
     ? pathToFileURL(path.join(LLMS_SRC, "pipelines/rag/index.js")).href
-    : "llms/src/pipelines/rag/index.js")
+    : "@williambrendel/llms/src/pipelines/rag/index.js")
 ).default;
 
 /** `documentId#heading` — unique across this corpus; headings already are. */
 const sectionId = (documentId, heading) => `${documentId}#${heading}`;
 
 const main = async () => {
+  await runtimeReady;
   await prewarm(CONFIG.PREWARM);
 
   const [{ documents }, store, prompts] = await Promise.all([
