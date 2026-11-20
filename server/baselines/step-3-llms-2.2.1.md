@@ -102,10 +102,36 @@ the positive run had already warmed, so it never contacted the registry.)
 build and needs a clean tree on `main`, so the end-to-end deploy is still
 unproven and should be watched on its first run.
 
+## Steps 4–6, done after this and measured against the same run
+
+Pure deduplication, and the instruments agree: `tune-floor`,
+`calibrate-gate`, `measure-actions` and `check-starters` all came back
+**byte-identical to the post-swap run above**, the corpus verifies, and the
+HTTP smoke test stayed at 13/15 and 4/4.
+
+- **Pricing and presets** onto llms. Both config objects are field-for-field
+  identical except an inherited `pollInterval: 5000`, which equals
+  `batch.js`'s own default and is stripped before the SDK call. `ask` priced
+  7423 in / 1081 out at $0.00128 — the rate card to the token.
+- **`utils/io`** replaces three identical readdir walkers and the hand-rolled
+  writes. The manifest's **key order changed**: `getFilenames` sorts, while
+  the old walk returned filesystem order, so the committed file preserved
+  file *creation* order. Every hash is identical. `writeFileAtomic` was
+  checked to round-trip a 975 KB `.bin` byte-for-byte, non-UTF-8 bytes
+  included.
+- **The follow-up prompts** were byte-identical copies of the library's, down
+  to the sha256, so they are resolved from the package now. `LLMS_SRC` is
+  gone.
+
 ## Not done here
 
-Steps 4–11 of the audit are untouched: config onto llms presets, utils/io in
-the scripts, dropping the `LLMS_SRC` hack in `follow-ups.js` (its comment
-still claims `buildFollowUps` is unpublished, which is now false), server v3,
-the eval scripts onto `runQuery.retrieve`, and `actions.js` onto
-`createActionModel`.
+Steps 7–11 of the audit are untouched: server v3 (App, json/cors,
+`installGracefulShutdown`), the eval scripts onto `runQuery.retrieve` —
+which is the one with real answer-quality stakes, since they filter segments
+differently from production — and `actions.js` onto `createActionModel`.
+
+`server/data/follow-ups.md` is stale: it regenerates with a ~1400-line diff
+because it predates the current corpus and this embedding runtime, and the
+probe scores *rise* (0.59 → 0.78 on one). It is a human writing checklist,
+not runtime input, so it was left for a deliberate pass:
+`npm --prefix server run follow-ups -- --questions-only --reuse`.
