@@ -22,7 +22,7 @@ import { ready as runtimeReady } from "@williambrendel/llms/src/xenova/env.js";
 
 import fs   from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import CONFIG      from "../config.js";
 import VectorStore from "@williambrendel/llms/src/VectorStore/index.js";
@@ -47,41 +47,42 @@ const REUSE = args.includes("--reuse");
 const FLOOR = Number(flag("floor", 0.55));
 const OUT   = path.join(CONFIG.DATASET, "..", flag("out", "follow-ups.json"));
 
-// This project's copies, not the library's.
+// The library's copies, resolved through the package rather than duplicated.
 //
-// The same arrangement as prompts/augment-section.ppl: the library ships a
-// generic default, and a site that cares about its own voice keeps its own.
-// These two decide what every chip on the page says, so they belong where
-// they can be edited and reviewed next to the corpus they describe.
+// This used to hold local copies, on the stated grounds that "a site that
+// cares about its own voice keeps its own". The intent was sound and the
+// files never acted on it: both were byte-identical to the library's, while
+// prompts/answer.ppl and prompts/augment-section.ppl — the two that really
+// are forked for voice — differ from theirs by 450 and 505 lines. That is
+// what an owned prompt looks like here, and these were not one.
+//
+// Two identical copies is the bad middle: the library's improvements never
+// arrive, and nothing says so. Forking these again is a two-line change if
+// the chips ever need their own voice, and `npm run follow-ups` is a manual
+// step whose output is reviewed before it is committed, so a library change
+// cannot alter the live page without someone seeing the diff.
+const resolvePrompt = (name) => fileURLToPath(
+  import.meta.resolve(`@williambrendel/llms/src/pipelines/rag/prompts/${name}.ppl`)
+);
+
 const PROMPTS = {
-  questions: path.join(import.meta.dirname, "../prompts/follow-up-questions.ppl"),
-  answers:   path.join(import.meta.dirname, "../prompts/follow-up-answers.ppl"),
+  questions: resolvePrompt("follow-up-questions"),
+  answers:   resolvePrompt("follow-up-answers"),
 };
 
-/**
- * Where to load the pipeline from.
- *
- * `rag.buildFollowUps` is new and not in the published llms yet, so point
- * LLMS_SRC at a checkout to run against a branch:
- *
- *   LLMS_SRC=~/Development/Projects/stack/llms/src npm run follow-ups -- --limit 4
- *
- * Unset, this resolves the installed package exactly as everything else
- * does, and will keep working untouched once a release carries the stage.
- */
-const LLMS_SRC = process.env.LLMS_SRC
-  ? path.resolve(process.env.LLMS_SRC.replace(/^~/, process.env.HOME))
-  : null;
-// ESM: a dynamic import is async and an absolute filesystem path must be a
-// file:// URL, so this is awaited at the call site rather than returned
-// synchronously. `.default` is the v1 module.exports value — note the
-// parentheses: `await import(x).default` would await the property of a
-// promise, not the module.
-const importRag = async () => (
-  await import(LLMS_SRC
-    ? pathToFileURL(path.join(LLMS_SRC, "pipelines/rag/index.js")).href
-    : "@williambrendel/llms/src/pipelines/rag/index.js")
-).default;
+// The LLMS_SRC escape hatch is gone.
+//
+// It existed because `rag.buildFollowUps` was unreleased, so this script
+// needed to point at a working checkout. It ships in the published package
+// now, which is what this imports — one way in, the same as every other
+// module here. To try a library branch again, `npm link` it rather than
+// reintroducing a filesystem path that only this one script understands.
+//
+// Still a dynamic import, and deliberately: the pipeline is only needed on
+// the paths that generate, and loading it pulls in the Claude client and the
+// prompt stack for a `--reuse` run that uses neither.
+const importRag = async () =>
+  (await import("@williambrendel/llms/src/pipelines/rag/index.js")).default;
 
 /** `documentId#heading` — unique across this corpus; headings already are. */
 const sectionId = (documentId, heading) => `${documentId}#${heading}`;

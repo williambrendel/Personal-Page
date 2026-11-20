@@ -20,24 +20,22 @@ import crypto from "node:crypto";
 
 import CONFIG           from "../config.js";
 import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
+import { getFilenames, readJson, writeJson } from "@williambrendel/utils/io";
 
 const MANIFEST_PATH = path.join(CONFIG.DATASET, "manifest.json");
 
 const sha256 = (text) => crypto.createHash("sha256").update(text, "utf8").digest("hex");
 
-const walk = async (dir) => {
-  const out = [];
-  for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...await walk(full));
-    else if (e.isFile() && e.name.endsWith(".md")) out.push(full);
-  }
-  return out;
-};
+// The corpus files, sorted. This replaced a local recursive readdir — one of
+// three identical copies in this repo — and the sort is the improvement:
+// the old walk returned filesystem order, so the manifest's key order was
+// whatever the filesystem happened to give. It matched sorted order here, so
+// nothing moved, but it was never guaranteed to.
+const walk = (dir) => getFilenames(dir, { extensions: [".md"] });
 
 /** Build the manifest from what's on disk right now. */
 const build = async () => {
-  const files = await walk(CONFIG.MARKDOWNS);
+  const files = walk(CONFIG.MARKDOWNS);
   const documents = {};
   for (const file of files) {
     documents[deriveDocumentId(file)] = sha256(await fs.readFile(file, "utf8"));
@@ -68,13 +66,13 @@ const build = async () => {
 const write = async (built = null) => {
   if (!built) {
     const manifest = await build();
-    await fs.writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");
+    await writeJson(MANIFEST_PATH, manifest);
     return manifest;
   }
 
   let previous = {};
   try {
-    previous = JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8")).documents || {};
+    previous = (await readJson(MANIFEST_PATH)).documents || {};
   } catch { /* no manifest yet: this run is all there is */ }
 
   const documents = { ...previous };
@@ -87,13 +85,13 @@ const write = async (built = null) => {
   // noise would outlive the file by every future ingest.
   // `.map(deriveDocumentId)` would hand it the array index as a second
   // argument, which it reads as a theme override and rejects.
-  const onDisk = new Set((await walk(CONFIG.MARKDOWNS)).map(f => deriveDocumentId(f)));
+  const onDisk = new Set(walk(CONFIG.MARKDOWNS).map(f => deriveDocumentId(f)));
   for (const documentId of Object.keys(documents)) {
     if (!onDisk.has(documentId)) delete documents[documentId];
   }
 
   const manifest = { generatedAt: new Date().toISOString(), documents };
-  await fs.writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");
+  await writeJson(MANIFEST_PATH, manifest);
   return manifest;
 };
 
@@ -104,7 +102,7 @@ const write = async (built = null) => {
 const verify = async () => {
   let recorded;
   try {
-    recorded = JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8")).documents;
+    recorded = (await readJson(MANIFEST_PATH)).documents;
   } catch {
     return { ok: false, reason: "no manifest", stale: [], missing: [], untracked: [] };
   }

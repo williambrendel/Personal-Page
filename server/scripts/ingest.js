@@ -26,21 +26,14 @@ import claudeRun        from "@williambrendel/llms/src/claude/index.js";
 import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
 import makeLimit        from "@williambrendel/llms/src/utilities/makeLimit.js";
 import manifest         from "./manifest.js";
+import { getFilenames, writeFileAtomic, writeJson } from "@williambrendel/utils/io";
 
 const args      = process.argv.slice(2);
 const noAugment = args.includes("--no-augment");
 const targets   = args.filter(a => !a.startsWith("--"));
 
-/** Recursively collect every .md under dir. */
-const walkMarkdown = async (dir) => {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...await walkMarkdown(full));
-    else if (entry.isFile() && entry.name.endsWith(".md")) out.push(full);
-  }
-  return out;
-};
+/** Every .md under dir, sorted. */
+const walkMarkdown = (dir) => getFilenames(dir, { extensions: [".md"] });
 
 const main = async () => {
   const files = targets.length
@@ -129,8 +122,15 @@ const main = async () => {
     // Bin path mirrors the markdown path so deriveDocumentId(bin) === documentId.
     const rel     = path.relative(CONFIG.MARKDOWNS, input.file).replace(/\.md$/, ".bin");
     const binPath = path.join(CONFIG.DATASET, rel);
-    await fs.mkdir(path.dirname(binPath), { recursive: true });
-    await fs.writeFile(binPath, r.value);
+
+    // Atomic, and that matters here specifically. A .bin is the embedded
+    // corpus; engine boot refuses to start on a corpus whose hashes do not
+    // match, but a half-written .bin from an interrupted ingest is not a
+    // hash mismatch — it is a truncated vector file, and what reads it next
+    // is a VectorStore, not a validator. writeFileAtomic writes to a temp
+    // file beside this one and renames, so a reader sees the old bytes or
+    // the new ones. `mkdir` replaces the explicit mkdir this used to do.
+    await writeFileAtomic(binPath, r.value, { mkdir: true });
 
     // Beside the .bin, same stem, so deriveDocumentId still works on either
     // and a stale pair is obvious. Ranges are the section ranges the .bin
@@ -140,8 +140,8 @@ const main = async () => {
       const asked = rows
         .filter(s => s.questions.length)
         .map(s => ({ range: s.range, questions: s.questions }));
-      await fs.writeFile(binPath.replace(/\.bin$/, ".questions.json"),
-        JSON.stringify({ documentId: input.documentId, sections: asked }, null, 2) + "\n");
+      await writeJson(binPath.replace(/\.bin$/, ".questions.json"),
+        { documentId: input.documentId, sections: asked });
     }
 
     ok++;

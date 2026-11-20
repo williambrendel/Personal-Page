@@ -1,15 +1,28 @@
 import dotenv from "dotenv";
 import path from "node:path";
 import { VEC_DTYPE } from "@williambrendel/llms/src/VectorStore/Document/constants.js";
-import Pricing from "@williambrendel/llms/src/claude/Pricing.js";
+import { HAIKU55_CONFIG, SONNET55_CONFIG } from "@williambrendel/llms/src/claude/config.js";
 
 // ESM hoists every import above the module body, so this runs AFTER the
 // imports above — unlike the require() it replaced, which ran before them.
-// That is safe here only because nothing imported above reads the
-// environment at load time: VEC_DTYPE is a frozen enum, Pricing is a class,
-// and llms/src/claude/config runs dotenv itself before it reads the API key.
-// Anything added above that reads process.env at load time breaks silently,
-// with an undefined key rather than an error.
+//
+// That is safe only because of what those two imports are. VEC_DTYPE is a
+// frozen enum. llms/src/claude/config DOES read the environment at load
+// time, for the API key in its BASE preset, but it calls dotenv itself
+// first, so it reads a populated environment — and the two model configs
+// below override `apiKey` from this module's body anyway, after the
+// dotenv.config() here, so the presets' copy is never the one used.
+//
+// It also matters that llms/src/claude/config reaches nothing under
+// src/xenova: the XENOVA_CACHE_DIR assignment below must happen before
+// anything imports llms/src/xenova/env, and an import added above that
+// pulls in the embedding runtime would move the cache back inside
+// node_modules, where `npm ci` deletes it and every deploy re-downloads
+// ~125MB. Verified when these presets were introduced; re-check it if the
+// imports above change.
+//
+// Anything added above that reads process.env at load time without running
+// dotenv itself breaks silently, with an undefined value rather than an error.
 dotenv.config({ quiet: true });
 
 const ROOT = import.meta.dirname;
@@ -39,28 +52,23 @@ if (process.env.NODE_ENV === "production") {
   process.env.XENOVA_ALLOW_REMOTE_MODELS ||= "false";
 }
 
-/**
- * Current first-party Anthropic rates (USD per 1M tokens).
- * The vendored llms/src/claude/config.js still carries the Jan-2025 table;
- * these override it so cost accounting reflects reality.
- */
-const PRICING = Object.freeze({
-  // Haiku 5.5 is priced by prompt length. These are the rates for prompts of
-  // 100,000 tokens or fewer; a longer prompt pays 5x ($0.50 / $0.625 / $0.05
-  // / $2.50). Pricing holds one rate card, so a >100K prompt would be logged
-  // 5x low — not a concern here, since retrieval caps context at a handful of
-  // sections and a full request runs ~4K tokens.
-  "claude-haiku-5-5": new Pricing({
-    input:  { standard: 0.10, cacheWrite: 0.125, cacheRead: 0.01 },
-    output: { standard: 0.50 },
-    batchDiscount: 0.50,
-  }),
-  "claude-sonnet-5-5": new Pricing({
-    input:  { standard: 2.00, cacheWrite: 2.50, cacheRead: 0.10 },
-    output: { standard: 10.00 },
-    batchDiscount: 0.50,
-  }),
-});
+// Pricing now comes from the library, which carries the same numbers.
+//
+// This file used to hold its own rate card, on the stated grounds that
+// llms's table was "the Jan-2025 table" and stale. That is no longer true:
+// llms/src/claude/modelPricing.js lists $0.10/$0.125/$0.01/$0.50 for Haiku
+// 5.5 and $2.00/$2.50/$0.10/$10.00 for Sonnet 5.5, which is exactly what
+// this duplicated. Two copies of a rate card is one copy that goes stale
+// silently, and the cost line in `npm run ask` is the only place anyone
+// would notice.
+//
+// The one thing the library's table cannot express is still worth knowing:
+// Haiku 5.5 is priced by prompt length, and these are the rates for prompts
+// of 100,000 tokens or fewer. A longer prompt pays 5x ($0.50 / $0.625 /
+// $0.05 / $2.50), and Pricing holds one rate card, so a >100K prompt is
+// logged 5x low. Not a concern here — retrieval caps context at a handful of
+// sections and a full request runs ~4K tokens — but it would be if the
+// corpus or the context budget grew by an order of magnitude.
 
 /**
  * Answer-path model. Haiku 5.5 — cheapest tier, and this is a
@@ -83,16 +91,31 @@ const PRICING = Object.freeze({
  * Turn it on if answer quality ever needs the headroom; measure first.
  */
 const HAIKU55 = Object.freeze({
+  ...HAIKU55_CONFIG,
+
+  // apiKey explicitly, rather than inheriting the preset's. The preset reads
+  // the environment when llms's own config module is evaluated; this reads it
+  // in this module's body, after dotenv has run. Both work today, and only
+  // one of them keeps working if llms ever changes when it reads.
   apiKey: process.env.ANTHROPIC_API_KEY,
-  model: "claude-haiku-5-5",
-  // 4096, not 2048. An answer drawing on several sections plus its follow-up
-  // questions ran past 2048 and was cut mid-string, so the JSON would not
-  // parse. Output is billed per token used, not per token allowed, so the
-  // headroom is free; a truncated answer is not.
+
+  // 4096, not the preset's 16000. An answer drawing on several sections plus
+  // its follow-up questions ran past 2048 and was cut mid-string, so the JSON
+  // would not parse; 4096 is the headroom that fixed it. Output is billed per
+  // token used, not per token allowed, so a higher ceiling costs nothing —
+  // but it also bounds nothing, and this path answers strangers.
   max_tokens: 4096,
+
+  // OFF, against the preset's adaptive, for cost rather than correctness.
+  // Adaptive works fine with the JSON output contract — run.js filters to
+  // text blocks, so thinking blocks never reach parseResponseJson. It just
+  // costs 20-40% more output tokens ($0.0012 against $0.0010 per query) for a
+  // retrieve-and-paraphrase task that does not visibly benefit. Turn it on if
+  // answer quality ever needs the headroom; measure first.
   thinking: undefined,
+
+  // 3, against the preset's 5. A visitor is waiting.
   maxRetries: 3,
-  pricing: PRICING["claude-haiku-5-5"],
 });
 
 /**
@@ -111,18 +134,30 @@ const HAIKU55 = Object.freeze({
  * negligible, and augmentation quality compounds across every later query.
  */
 const SONNET55 = Object.freeze({
+  ...SONNET55_CONFIG,
+
+  // See HAIKU55 above for why the key is set explicitly.
   apiKey: process.env.ANTHROPIC_API_KEY,
-  model: "claude-sonnet-5-5",
-  // 16000, not 4096. Augmentation emits one row per (fact, angle) pair, so a
-  // dense section — stories/iscribe_turnaround lists six separate
+
+  // The preset already carries max_tokens 16000 and adaptive thinking, which
+  // is what this path wants, so neither is repeated here. Why 16000 matters
+  // is still worth recording: augmentation emits one row per (fact, angle)
+  // pair, so a dense section — stories/iscribe_turnaround lists six separate
   // achievements — can need well over 4096 tokens. Past the ceiling the JSON
   // array is cut mid-write and fails to parse, which surfaced as "response is
   // not a valid JSON array" and failed identically on every retry.
-  max_tokens: 16000,
+  //
+  // Thinking stays on here, unlike the answer path: ingest runs once per
+  // corpus change rather than per visitor, so the extra output tokens are
+  // negligible, and augmentation quality compounds across every later query.
+
+  // Deliberate, and not in the preset. Sonnet 5.5 rejects `temperature`, and
+  // null is dropped by the Config class, so a value inherited from a merge
+  // base can never reach the request.
   temperature: null,
-  thinking: { type: "adaptive" },
+
+  // 3, against the preset's 5. Ingest is batched and re-runnable.
   maxRetries: 3,
-  pricing: PRICING["claude-sonnet-5-5"],
 });
 
 export default Object.freeze({
@@ -184,7 +219,9 @@ export default Object.freeze({
   // stories it generates near-useless rows.
   AUGMENT_PROMPT: path.join(ROOT, "prompts/augment-section.ppl"),
 
-  PRICING,
+  // PRICING is no longer exported: nothing outside this file read it, and
+  // the rates now live in llms. Each model config still carries its own
+  // `pricing`, which is what the cost line in `npm run ask` uses.
   HAIKU55,
   SONNET55,
 

@@ -65,6 +65,7 @@ import path from "node:path";
 
 import CONFIG from "../config.js";
 import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
+import { getFilenames } from "@williambrendel/utils/io";
 import { actionsFor } from "./actions.js";
 
 /** How many chips deep the page can go before it has to ask the API. */
@@ -212,15 +213,17 @@ const parseSections = (markdown) => {
   }));
 };
 
-const walk = async (dir, suffix = ".md") => {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...await walk(full, suffix));
-    else if (entry.isFile() && entry.name.endsWith(suffix)) out.push(full);
-  }
-  return out;
-};
+/**
+ * Files under `dir` whose name ends with `suffix`, sorted.
+ *
+ * `suffix` rather than an extension because one caller wants
+ * `.questions.json`, and to `path.extname` that is just `.json` — the
+ * sidecars would come back mixed in with any other JSON in the dataset. A
+ * name pattern matches the whole suffix, which is what both callers mean.
+ */
+const walk = (dir, suffix = ".md") => getFilenames(dir, {
+  names: [new RegExp(`${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`)],
+});
 
 /**
  * Every section in the corpus, keyed by its normalised heading.
@@ -246,7 +249,7 @@ const walk = async (dir, suffix = ".md") => {
 const loadQuestions = async (datasetRoot) => {
   const byDocument = new Map();
   let files = [];
-  try { files = await walk(datasetRoot, ".questions.json"); } catch { return byDocument; }
+  try { files = walk(datasetRoot, ".questions.json"); } catch { return byDocument; }
 
   for (const file of files) {
     try {
@@ -266,7 +269,7 @@ const buildGraph = async (root, datasetRoot = CONFIG.DATASET) => {
   const documents = new Map();     // documentId → sections, in order
   const asked = await loadQuestions(datasetRoot);
 
-  for (const file of await walk(root)) {
+  for (const file of walk(root)) {
     const rel = path.relative(root, file);
     const sections = parseSections(await fs.readFile(file, "utf8"));
     const documentId = deriveDocumentId(file);

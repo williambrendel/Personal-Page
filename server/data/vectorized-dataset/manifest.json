@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T18:11:25.017Z",
+  "generatedAt": "2026-11-20T19:48:52.595Z",
   "documents": {
     "background|book": "f453fd56852a020e3e6972c6f894fc7505caa85846ebf41acc2b8ff0658bb363",
     "background|demographics_and_eligibility": "dc2af8bbbc9142720ccffa9aca1b929d655aba360ff6ed5db5c913991db19d04",
@@ -35,14 +35,17 @@
     "perspective|firing_and_accountability": "e3d45575832adc1ee946efa676906e68579dfa9489de4c7a80e23c2772920a27",
     "perspective|first_90_days": "b8cd44f53ecbf4b63d46b71032dc86b6765f5ca3c09d037fae6a24e40f0bd495",
     "perspective|future_of_healthcare_ai": "48a354eb059c13bf650185078ba812fe4914fc9c3015cfa5b3839d06b13bca15",
+    "perspective|growing_people": "e34d6a0adf02f96a38d99598aad793f4d76e4ffe7cc2834f42a4f4a324d158e1",
     "perspective|how_i_run_teams": "bc72c160585a83bb36b6251c6d4fbbf94acfb422fad45fd76e086c3efd01f071",
     "perspective|how_i_see_myself": "a4e9b2ef2cd51a2d22dea43c893b82154cf90683e3170222e0907989783cf2c1",
     "perspective|influences": "c237b5bcd332ce76457a293d1763d2cabfc43c6dc958af8554702dd344e5ddbe",
+    "perspective|no_room_for_toxicity": "fd2ad24b4f742dc30a204c5e0a92fcb29f9dc935d2dd52c95531761db243d2c9",
     "perspective|pwa_vs_native": "9794d9abc67b9f673fb4f60273580e8ab4b6ff64aa07c83325630068afcf831e",
     "perspective|why_javascript": "ffae3b58425cb630eb4b809bf3be77be5c847bcea74327f2c9df41bb21747cc1",
     "perspective|work_hours": "a39972cd04f98d765d867bfd2ec6d90ea4aff80e5c238021bdcf4f06254b93a0",
     "stories|apple_offer_and_google": "1a44aac8bd8416b4cd22e6422441ddadffe1c09fd33243c830875ef5f160047f",
     "stories|heali_early_team": "26b3731498acbc9aae6dda4e66b363990ab7a6fc37a52a4054a8e8d3f4286baf",
+    "stories|heali_launch_that_kept_slipping": "cd684617a56e93f0524e46455360feb8fc7be9fc4d893c7f3e571f0663d35c9c",
     "stories|heali_letting_someone_go": "89c31c2196c8a9fd9e1759cdcb59e5050b1ca1ea30a1afd65f95017d2146a4b3",
     "stories|heali_nutrition_engine": "aeec8482d4671d5018adf3c6542a09a742444dc11062d962b397a6ce0a5ddf13",
     "stories|heali_overbuilt_before_validating": "14b5d8ca2afd3807218f5b8b8cd7116899165a708281de44f841f0943af49ad4",
@@ -52,15 +55,12 @@
     "stories|iscribe_outage_night": "28e3c78d3fbd0f18933630faaa3deede27e8355c634d9a561b4a29b3b2b7fb19",
     "stories|iscribe_tech_debt_tradeoff": "e675f1c52578e8597e6d83656e3eec2fc2f99622b17a0f42587eb48f6c6154fa",
     "stories|iscribe_turnaround": "5f328423282d7cf547d82501b1733ba811dada321a35123c07a02af07808b69b",
+    "stories|iscribe_wrong_crowd_to_convince": "248ec5b5ebabe06fc39ea91a5db10d94a38e7ee0ff9c55c7a2a4b2917e006fb3",
     "stories|kelley_building_and_jensen_huang": "63bbcdb428496d0fe19aa16a907e42dbdd0af7a6995e419d1b6289b5e3fadff7",
     "stories|leaving_big_tech_for_heali": "5417f390ee362d5f37ea25b1eff020bbb39208f22235eaae7c195911cf2402f0",
     "stories|onboarding_my_own_director": "bf23a5d7e6c46f21975e17ce2117d49d1703384def74b7de3045ab19a72433cb",
     "stories|snap_beauty_score_filter": "be629c0475e42c2e5e2a92603fbd07e394b24cb50ccb5f8da72973bd12ba0e72",
     "stories|told_id_never_make_it": "7f3f8ea13d2db8793d8e2f02ebf59eb0f3ac577db5f54b76efaf57e628f6aeab",
-    "stories|youtube_shipping_past_politics": "81ad666623d03a0acfbcfad9c6159a0cbfab2a2a24759ae20dc822eda60fb372",
-    "stories|heali_launch_that_kept_slipping": "cd684617a56e93f0524e46455360feb8fc7be9fc4d893c7f3e571f0663d35c9c",
-    "stories|iscribe_wrong_crowd_to_convince": "248ec5b5ebabe06fc39ea91a5db10d94a38e7ee0ff9c55c7a2a4b2917e006fb3",
-    "perspective|growing_people": "e34d6a0adf02f96a38d99598aad793f4d76e4ffe7cc2834f42a4f4a324d158e1",
-    "perspective|no_room_for_toxicity": "fd2ad24b4f742dc30a204c5e0a92fcb29f9dc935d2dd52c95531761db243d2c9"
+    "stories|youtube_shipping_past_politics": "81ad666623d03a0acfbcfad9c6159a0cbfab2a2a24759ae20dc822eda60fb372"
   }
 }
