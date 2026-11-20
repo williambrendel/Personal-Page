@@ -1,0 +1,117 @@
+Engine ready in 1.8s — 61 documents, 384 dimensions.
+
+── Leadership & Executive Vision ───────────────────────────
+  ok   Describe a time you set a strategic vision for a team that faced sig
+        stories|youtube_shipping_past_politics
+  ok   What is your philosophy on leading through major change or organizat
+        background|book, perspective|first_90_days, stories|youtube_shipping_past_politics
+  ok   Tell me about the toughest decision you had to make as a leader rece
+        stories|heali_letting_someone_go
+  ok   How do you balance long-term strategic goals with short-term fire-fi
+        stories|iscribe_tech_debt_tradeoff
+  ok   Tell me about a time a major project failed under your watch. How di
+        stories|heali_launch_that_kept_slipping
+ thin  Describe a time you had to sell an unpopular or high-risk decision t
+        stories|iscribe_azure_or_aws
+  ok   How do you identify, groom and retain high-potential talent?
+        perspective|growing_people
+  ok   Give an example of stepping in to manage an underperforming or demot
+        perspective|how_i_run_teams, perspective|firing_and_accountability
+  ok   How do you define your leadership style, and how has it evolved?
+        perspective|core_values, perspective|how_i_see_myself
+  ok   Tell me about a time you led by example when your team was stretched
+        stories|iscribe_outage_night
+  ok   How do you measure the health and success of a department or company
+        perspective|how_i_see_myself
+  ok   Describe realigning a team's priorities after a sudden shift in mark
+        stories|iscribe_wrong_crowd_to_convince
+
+── Behavioral & Problem-Solving ────────────────────────────
+  ok   Tell me about solving a complex problem with very limited data or re
+        stories|heali_nutrition_engine
+  ok   Describe making a critical decision under severe time pressure.
+        stories|iscribe_outage_night
+  ok   Give an example of disagreeing with your manager or executive leader
+        stories|youtube_shipping_past_politics
+  ok   Two key stakeholders had conflicting priorities. How did you broker 
+        stories|iscribe_tech_debt_tradeoff
+ thin  Describe failing to meet a major deadline or KPI. How did you rectif
+        stories|heali_launch_that_kept_slipping
+  ok   How do you handle ambiguity when requirements are unclear or shiftin
+        perspective|how_i_run_teams, stories|heali_letting_someone_go
+  ok   Tell me about delivering difficult, career-altering feedback to a di
+        perspective|how_i_see_myself, perspective|core_values
+ MISS  Describe identifying an inefficient process and re-engineering it fr
+  ok   How do you handle someone who consistently misses expectations despi
+        perspective|firing_and_accountability
+ thin  Tell me about influencing someone without having direct authority ov
+        stories|youtube_shipping_past_politics
+ thin  Describe adapting your communication style for a difficult audience.
+        perspective|how_i_run_teams
+ thin  Give an example of a calculated risk that did not pay off. What was 
+        perspective|growing_people
+
+── HR, Culture & People ────────────────────────────────────
+  ok   What is your approach to resolving conflict between two valuable tea
+        perspective|how_i_run_teams, stories|snap_beauty_score_filter, stories|youtube_shipping_past_politics
+  ok   Describe your best and worst hiring decisions.
+        perspective|diversity_and_inclusion, stories|heali_letting_someone_go
+  ok   How do you handle burnout, for yourself or across your team?
+        perspective|work_hours, stories|iscribe_outage_night
+ thin  What do you do to foster psychological safety and open feedback?
+        perspective|ai_adoption
+ thin  Tell me about managing a layoff or restructuring. How did you handle
+        stories|heali_letting_someone_go
+  ok   How do you promote diversity, equity and inclusion in hiring and pro
+        perspective|diversity_and_inclusion
+ thin  Describe addressing an ethical violation or breach of company policy
+        stories|snap_beauty_score_filter
+  ok   How do you reward and recognise high performers beyond compensation?
+        perspective|growing_people
+ thin  What do you look for when evaluating a candidate's cultural add?
+        perspective|diversity_and_inclusion
+  ok   How do you handle a high performer who is toxic to peers?
+        perspective|no_room_for_toxicity
+ MISS  Tell me about mediating a dispute between HR and a business unit lea
+  ok   How do you manage remote or hybrid team engagement and accountabilit
+        perspective|distributed_teams
+  ok   What is your strategy for onboarding senior or executive hires?
+        stories|onboarding_my_own_director
+ thin  How do you handle employees who resist company-wide policy or cultur
+        stories|youtube_shipping_past_politics
+
+── Executive Presence & Self-Awareness ─────────────────────
+  ok   Why shouldn't I hire you?
+        stories|heali_letting_someone_go
+  ok   How would your direct reports describe your management style? How wo
+        perspective|how_i_run_teams, perspective|how_i_see_myself
+  ok   What is your greatest professional weakness and how do you compensat
+        perspective|how_i_run_teams, perspective|how_i_see_myself, stories|heali_overbuilt_before_validating
+  ok   It's noon one year from now. What are you doing?
+        career|what_im_doing_now, career|crossroads_venture_studio
+  ok   What keeps you awake at night when running an organization?
+        perspective|ai_slop
+  ok   How do you disconnect and recharge in a high-stress executive role?
+        background|personal_background
+  ok   What is the most misunderstood aspect of your leadership style?
+        perspective|how_i_see_myself
+  ok   If you joined us and could change one thing in your first 90 days, w
+        perspective|first_90_days
+  ok   How do you evaluate your own performance when the metrics are subjec
+        perspective|how_i_see_myself
+  ok   Tell me about a time someone challenged your core expertise. How did
+        stories|youtube_shipping_past_politics, stories|told_id_never_make_it
+ MISS  What belief about management have you completely changed your mind a
+  ok   Why are you leaving your current position, and what legacy do you wa
+        career|what_im_doing_now, logistics|why_i_left_iscribehealth, logistics|intro
+
+────────────────────────────────────────────────────────────────
+  answered 37/50    thin 10    declined 3
+────────────────────────────────────────────────────────────────
+
+  Questions with no corpus material — these need you, not me:
+
+    1. Describe identifying an inefficient process and re-engineering it from scratch.
+    2. Tell me about mediating a dispute between HR and a business unit leader.
+    3. What belief about management have you completely changed your mind about?
+

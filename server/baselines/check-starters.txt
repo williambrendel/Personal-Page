@@ -1,0 +1,48 @@
+Starters ready — 14/14 answered from the corpus, 248 sections indexed, 4 levels deep.
+Follow-ups from 1000 persisted questions across 61 documents.
+ok      A time I failed
+        Tell me about a time you failed. What's your biggest mistake?
+        697 chars, 3 follow-ups
+ok      A time I disagreed
+        Tell me about a time you disagreed with someone.
+        1015 chars, 1 follow-ups
+ok      A call under pressure
+        Tell me about a critical decision you made under severe time pressure.
+        1166 chars, 1 follow-ups
+ok      My biggest obstacle
+        What's the biggest obstacle you've had to get past?
+        689 chars, 3 follow-ups
+ok      Letting someone go
+        Tell me about a time you had to manage a layoff or let someone go.
+        493 chars, 3 follow-ups
+ok      What I'm proudest of
+        What's an achievement you're proud of?
+        250 chars, 2 follow-ups
+ok      My hardest technical call
+        What's the hardest technical decision you've made?
+        1166 chars, 1 follow-ups
+ok      Onboarding my own boss
+        Tell me about onboarding a senior or executive hire.
+        1318 chars, 1 follow-ups
+ok      What my critics say
+        How would your toughest critic describe you?
+        364 chars, 3 follow-ups
+ok      My leadership style
+        What's the most misunderstood aspect of your leadership style?
+        924 chars, 3 follow-ups
+ok      The values I lead by
+        What are your core values?
+        1032 chars, 2 follow-ups
+ok      What I want next
+        What are you looking for in a role?
+        513 chars, 1 follow-ups
+ok      What I'm building now
+        What are you doing now? What's your current role?
+        174 chars, 1 follow-ups
+ok      The book I co-wrote
+        Have you written a book? What's your chapter about?
+        1679 chars, 3 follow-ups
+
+14/14 resolve to the corpus.
+
+Run with -- --ask to also put each one through the engine.

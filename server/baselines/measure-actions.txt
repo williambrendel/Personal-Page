@@ -1,0 +1,31 @@
+
+SHOULD produce a button (threshold 0.78):
+  ok   1.000 resume    Can I see your resume?
+  ok   0.885 resume    Do you have a CV?
+  ok   0.896 resume    Where do I download your resume?
+  ok   0.827 resume    send me your cv
+  ok   1.000 linkedin  What's your LinkedIn?
+  ok   0.896 linkedin  link me your linkedin profile
+  ok   0.810 book      Can we talk sometime?
+  ok   0.783 book      I'd like to book 30 minutes
+  ok   0.877 book      how can I reach you
+  ok   0.928 book      Can I get in touch?
+  ok   0.934 share     how do I share this page
+
+Should produce NOTHING:
+  ok     thebook 0.602  book 0.571  linkedin 0.546  resume 0.534  share 0.475   What did you do at Snap?
+  ok     linkedin 0.636  thebook 0.611  resume 0.543  book 0.509  share 0.461   What are your core values?
+  ok     thebook 0.634  linkedin 0.519  book 0.510  resume 0.486  share 0.408   How did you get into AI?
+  ok     thebook 0.580  linkedin 0.509  book 0.477  resume 0.470  share 0.406   Tell me about a project that failed
+  ok     linkedin 0.522  thebook 0.506  book 0.464  resume 0.433  share 0.373   What's the hardest technical decision you've made?
+  ok     resume 0.770  linkedin 0.715  thebook 0.601  book 0.541  share 0.481   What's on your resume for 2019?
+  ok     resume 0.738  linkedin 0.639  thebook 0.569  book 0.488  share 0.445   What roles has your resume covered?
+  ok     resume 0.630  linkedin 0.582  book 0.491  thebook 0.482  share 0.334   What do you look for when hiring?
+  ok     linkedin 0.727  thebook 0.705  resume 0.689  book 0.605  share 0.506   Tell me about your background
+  ok     linkedin 0.663  thebook 0.603  book 0.597  resume 0.585  share 0.464   Who have you worked with?
+  ok     thebook 0.617  book 0.612  linkedin 0.506  share 0.445  resume 0.418   What happened in that meeting?
+  ok     book 0.597  share 0.540  thebook 0.528  linkedin 0.496  resume 0.466   How do you run a one-on-one?
+
+0 missed, 0 false positives
+lowest true 0.783  |  highest false 0.770
+clean separation — anything in (0.770, 0.783) works

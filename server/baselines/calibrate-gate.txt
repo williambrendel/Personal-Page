@@ -1,0 +1,14 @@
+
+  61 documents, retrieval floor 0.7
+
+  answerable (30): 0.756 0.773 0.825 0.826 0.836 0.837 0.838 0.862 0.866 0.867 0.869 0.869 0.873 0.882 0.897 0.900 0.904 0.912 0.916 0.922 0.934 0.947 0.949 0.950 0.950 0.959 0.960 0.967 0.972 0.974
+  off-topic  (10): 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+
+  gate.calibrate says:
+    minScore           0.755      (shipped default 0.54)
+    goodScore          0.755      (shipped default 0.6)
+    answerable below min  0%  <- questions we would wrongly refuse
+    off-topic below min   100%  <- refusals we would correctly make for free
+    answerable "good"     100%  <- answered with no second pass
+    answerable middle     0%  <- would take a second pass
+

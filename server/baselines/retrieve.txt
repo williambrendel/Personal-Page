@@ -1,0 +1,237 @@
+
+========== what did you do at Snap?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: what did you do at Snap?
+  corrected: what did you do at Snap?
+  greeting: false   intent: TECHNICAL
+  segments: "what did you do at Snap?" → TECHNICAL(0.39)
+  retrieved: 12
+    0.904  stories|leaving_big_tech_for_heali     The reach was the hardest part to give up. At Snap I shipped machine learning for augmented reality and f…
+    0.904  stories|snap_beauty_score_filter       While I was a PM at Snap, one of my engineers wanted to ship a group AR filter built on a "beauty score."…
+    0.883  career|snap                            Privacy-preserving friend recommendations revived 14% of inactive users and increased daily engagement by…
+    0.861  career|snap                            I was a Technical Program Manager and Senior Research Scientist at Snap from May 2016 to May 2019…
+------------------------------------------------------------------------------
+
+========== tell me about iScribeHealth
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: tell me about iScribeHealth
+  corrected: tell me about iScribeHealth
+  greeting: false   intent: TECHNICAL
+  segments: "tell me about iScribeHealth" → TECHNICAL(0.06)
+  retrieved: 12
+    0.900  logistics|why_i_left_iscribehealth     iScribeHealth builds AI-powered scribing, coding, and pre-authorization tools that save clinicians time a…
+    0.823  career|iscribehealth                   I owned engineering delivery, platform reliability, and production readiness across every customer-facing…
+    0.820  career|iscribehealth                   I was VP of Engineering at iScribeHealth from January 2025 to July 2025, running a 10-person engineering …
+    0.820  perspective|customer_centricity        Most of my time at iScribeHealth. On paper, leading a company through SOC 2 and HIPAA compliance is not t…
+------------------------------------------------------------------------------
+
+========== what did you build at Amazon?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: what did you build at Amazon?
+  corrected: what did you build at Amazon?
+  greeting: false   intent: TECHNICAL
+  segments: "what did you build at Amazon?" → TECHNICAL(0.02)
+  retrieved: 12
+    0.869  career|amazon_a9                       I was a Machine Learning Researcher and Technical Product Manager at Amazon's A9 visual search team from …
+    0.859  career|amazon_a9                       I launched the mobile brand logo detection and recognition project, achieving real-time performance at 10…
+    0.852  career|amazon_a9                       I blueprinted the global visual search database and the proprietary annotation and evaluation platform, m…
+    0.840  career|amazon_a9                       I authored and was granted 9 patents for innovations in visual search, object recognition, and machine le…
+------------------------------------------------------------------------------
+
+========== tell me about your PhD
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: tell me about your PhD
+  corrected: tell me about your PhD
+  greeting: false   intent: TECHNICAL
+  segments: "tell me about your PhD" → TECHNICAL(0.35)
+  retrieved: 12
+    0.836  stories|how_i_ended_up_in_ai           I did AI against my will, having been told a couple of years earlier that I wasn't suited to it. I ended …
+    0.806  background|education_and_research      - **Phi Kappa Phi Honors Society**, Oregon State University, 2011 — the recognition for finishing in the …
+    0.804  background|book                        Most of my writing is research rather than trade. I've authored 30+ patents and publications with 2,200+ …
+    0.794  stories|how_i_ended_up_in_ai           For the full picture of how little I saw this coming: a friend back in France told me he wanted to do a P…
+------------------------------------------------------------------------------
+
+========== how do you handle disagreement with your team?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: how do you handle disagreement with your team?
+  corrected: how do you handle disagreement with your team?
+  greeting: false   intent: TECHNICAL
+  segments: "how do you handle disagreement with your team?" → TECHNICAL(0.43)
+  retrieved: 12
+    0.965  stories|snap_beauty_score_filter       I didn't kill it outright. Killing an engineer's finished work is how you teach a team to stop bringing y…
+    0.866  stories|youtube_shipping_past_politics I hacked on it nights, cracked the hard part, and demoed a working version. Once there was something to l…
+    0.866  stories|youtube_shipping_past_politics I didn't escalate it, and I didn't keep relitigating it in meetings — I'd already lost that argument and …
+    0.866  stories|youtube_shipping_past_politics That's a specific choice about how to push back: when the objection isn't technical, more argument doesn'…
+------------------------------------------------------------------------------
+
+========== tell me about a time you failed
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: tell me about a time you failed
+  corrected: tell me about a time you failed
+  greeting: false   intent: TECHNICAL
+  segments: "tell me about a time you failed" → TECHNICAL(0.36)
+  retrieved: 12
+    0.922  career|inovexus                        Giving back to entrepreneurs by sharing what I've learned on both the technical and the product-executive…
+    0.922  career|inovexus                        Because the gap I'm helping with is the one that nearly cost me at Heali. I had the engineering. What I d…
+    0.922  perspective|diversity_and_inclusion    What I've changed deliberately is the interview. After we let someone go at Heali for a fit problem that …
+    0.922  stories|apple_offer_and_google         Between this and ending up in AI after being rejected from AI, I've stopped treating a closed door as inf…
+------------------------------------------------------------------------------
+
+========== how big was your team at Heali?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: how big was your team at Heali?
+  corrected: how big was your team at Heali?
+  greeting: false   intent: TECHNICAL
+  segments: "how big was your team at Heali?" → TECHNICAL(0.30)
+  retrieved: 12
+    0.966  career|heali_ai                        I recruited and directed a multidisciplinary organization of up to 12 engineers, product designers, and U…
+    0.913  stories|heali_early_team               At Heali, the health-tech startup I co-founded, I recruited and led a multidisciplinary team of up to 12 …
+    0.857  career|heali_ai                        The consumer apps scaled to 10,000+ active users. I bootstrapped a CDC-compliant Diabetes Prevention Prog…
+    0.831  career|iscribehealth                   I was VP of Engineering at iScribeHealth from January 2025 to July 2025, running a 10-person engineering …
+------------------------------------------------------------------------------
+
+========== how can I get in touch?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: how can I get in touch?
+  corrected: how can I get in touch?
+  greeting: false   intent: SUPPORT
+  segments: "how can I get in touch?" → SUPPORT(0.26)
+  retrieved: 6
+    0.823  logistics|contact_and_links            I don't publish my number here. Book a slot — there's a button for it right under this answer — and we ca…
+    0.820  logistics|contact_and_links            Everything you need is on this page — my LinkedIn, a link to book time with me directly, and my resume to…
+    0.770  background|press_and_interviews        I was Publication Chair for IEEE/CVF CVPR from 2017 to 2019, handling 2,000+ papers per edition, and Publ…
+    0.760  background|press_and_interviews        If you want me on a panel, a podcast, or a stage, the calendar link on this page is the fastest route…
+------------------------------------------------------------------------------
+
+========== what are you looking for in a role?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: what are you looking for in a role?
+  corrected: what are you looking for in a role?
+  greeting: false   intent: TECHNICAL
+  segments: "what are you looking for in a role?" → TECHNICAL(0.02)
+  retrieved: 12
+    0.916  logistics|what_im_looking_for          Engineering leadership where I can scale a team fast. I've run organizations from a handful of people up …
+    0.853  logistics|what_im_looking_for          Mission-driven, and ideally somewhere AI is the core of the product rather than a feature bolted onto it.…
+    0.853  logistics|why_i_left_iscribehealth     What I'm looking for next is a mission-driven role where I can scale engineering faster and have a bigger…
+    0.848  perspective|how_i_see_myself           What settles it isn't security. It's alignment: whether the mission is one I believe is worth the next fe…
+------------------------------------------------------------------------------
+
+========== why did you leave iScribeHealth?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: why did you leave iScribeHealth?
+  corrected: why did you leave iScribeHealth?
+  greeting: false   intent: TECHNICAL
+  segments: "why did you leave iScribeHealth?" → TECHNICAL(0.17)
+  retrieved: 12
+    0.967  logistics|why_i_left_iscribehealth     I'm proud of what I built there — the re-architecture, the compliance work, and the integrations, with pr…
+    0.967  logistics|why_i_left_iscribehealth     What I'm looking for next is a mission-driven role where I can scale engineering faster and have a bigger…
+    0.850  logistics|why_i_left_iscribehealth     iScribeHealth builds AI-powered scribing, coding, and pre-authorization tools that save clinicians time a…
+    0.789  stories|iscribe_azure_or_aws           We stayed. Then we refactored the platform from .NET 4 to .NET 8 anyway, which cut production downtime by…
+------------------------------------------------------------------------------
+
+========== what's your favorite book?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: what's your favorite book?
+  corrected: what's your favorite book?
+  greeting: false   intent: TECHNICAL
+  segments: "what's your favorite book?" → TECHNICAL(0.43)
+  retrieved: 3
+    0.928  perspective|influences                 The Lean Startup, by Eric Ries. It taught me the power of fast feedback loops — build, measure, learn. I'…
+    0.730  perspective|influences                 Moneyball. I love it because it's about finding overlooked value with data. That's how I like to work too…
+    0.716  background|book                        Yes — I'm a co-author of *The AI Transformation: Thriving Within Civilization's Next Big Disruption*, a m…
+------------------------------------------------------------------------------
+
+========== how do you feel about firing people?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: how do you feel about firing people?
+  corrected: how do you feel about firing people?
+  greeting: false   intent: TECHNICAL
+  segments: "how do you feel about firing people?" → TECHNICAL(0.50)
+  retrieved: 9
+    0.945  perspective|firing_and_accountability  It's one of the hardest parts of leadership, and sometimes it's necessary. I do it with objectivity, comp…
+    0.822  perspective|firing_and_accountability  It changes what you do. If the answer is that the person was set up badly, the fix is upstream and firing…
+    0.780  stories|heali_letting_someone_go       Nobody should take that call in the week before the holidays if the business can survive four more weeks …
+    0.776  perspective|growing_people             I put one in place deliberately, because failure is the greatest teacher of all. People were encouraged t…
+------------------------------------------------------------------------------
+
+========== what would you do in your first 90 days?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: what would you do in your first 90 days?
+  corrected: what would you do in your first 90 days?
+  greeting: false   intent: TECHNICAL
+  segments: "what would you do in your first 90 days?" → TECHNICAL(0.40)
+  retrieved: 3
+    0.958  perspective|first_90_days              First, assess the current architecture, the team's strengths, and the practices already in place. Second,…
+    0.802  perspective|first_90_days              The assessment has to come first or you're solving the problems you brought with you rather than the ones…
+    0.713  stories|onboarding_my_own_director     I'd wanted to build technology for animation studios. That was the original ambition — the reason I went …
+------------------------------------------------------------------------------
+
+========== thoughts on an 80 hour work week?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: thoughts on an 80 hour work week?
+  corrected: thoughts on an 80 hour work week?
+  greeting: false   intent: TECHNICAL
+  segments: "thoughts on an 80 hour work week?" → TECHNICAL(0.11)
+  retrieved: 3
+    0.869  perspective|work_hours                 There will be weeks that are all hands on deck, weekends included. I've done them and I'll do them again …
+    0.848  perspective|work_hours                 Sustained overwork is usually a symptom — unclear priorities, or an architecture that makes everything ex…
+    0.821  perspective|work_hours                 In principle an 80-hour week goes against the ethos of most AI-driven companies. If we're building AI pro…
+------------------------------------------------------------------------------
+
+========== where do you see healthcare AI going?
+Loaded 61 documents, 384 dimensions.
+
+==============================================================================
+
+QUERY: where do you see healthcare AI going?
+  corrected: where do you see healthcare AI going?
+  greeting: false   intent: TECHNICAL
+  segments: "where do you see healthcare AI going?" → TECHNICAL(0.04)
+  retrieved: 11
+    0.921  perspective|future_of_healthcare_ai    AI agents will handle the majority of administrative and clinical workflows. No archaic EHR middleman. He…
+    0.821  logistics|intro                        I left big tech to work on problems where AI actually changes outcomes for people. I've spent the last si…
+    0.800  perspective|future_of_healthcare_ai    It's the workflow where the administrative burden is most obviously indefensible, and where getting it ri…
+    0.788  perspective|ai_for_good                The maths that recommends the next video you'll watch is close kin to the maths that predicts what someon…
+------------------------------------------------------------------------------

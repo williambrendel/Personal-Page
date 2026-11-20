@@ -24,7 +24,8 @@
     "measure-actions": "node scripts/measure-actions.js",
     "stamp": "node scripts/stamp-site.js",
     "check-starters": "node scripts/check-starters.js",
-    "follow-ups": "node scripts/follow-ups.js"
+    "follow-ups": "node scripts/follow-ups.js",
+    "query-baseline": "node scripts/query-baseline.js"
   },
   "author": "William Brendel",
   "license": "MIT",
