@@ -26,12 +26,14 @@
     "check-starters": "node scripts/check-starters.js",
     "follow-ups": "node scripts/follow-ups.js",
     "query-baseline": "node scripts/query-baseline.js",
-    "check-imports": "node scripts/check-library-imports.js"
+    "check-imports": "node scripts/check-library-imports.js",
+    "golden": "node scripts/golden-retrieval.js",
+    "test": "node scripts/check-library-imports.js && node scripts/manifest.js --verify && node scripts/golden-retrieval.js && node scripts/check-starters.js"
   },
   "author": "William Brendel",
   "license": "MIT",
   "dependencies": {
-    "@williambrendel/llms": "2.2.1",
+    "@williambrendel/llms": "~2.3.2",
     "@williambrendel/utils": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^18.0.10",

@@ -8,7 +8,7 @@
 #   server/scripts/ship.sh --skip-health   roll out without waiting on DNS/TLS
 #
 #   AWS_PROFILE=pp         the identity to deploy with (default: pp)
-#   LLMS_READ_TOKEN=...    read access to the private llms repo
+#   STACK_PACKAGES_TOKEN=... read:packages for the @williambrendel packages
 #                          (default: `gh auth token`)
 #
 # What it does, in order. Any failure stops it, nothing half-done:
@@ -16,7 +16,8 @@
 #              stopped again on the way out
 #   1. git:    working tree clean, and this commit is exactly origin/main —
 #              so what ships is what is on GitHub, not what is on this Mac
-#   2. corpus: npm run verify, because section ranges are byte offsets and a
+#   2. test: npm test (imports, corpus, golden retrieval, chips), because
+#      section ranges are byte offsets and a
 #              corpus out of sync with its vectors returns misaligned text
 #  2b. stamps: npm run stamp -- --verify, because a stale ?v= leaves every
 #              returning visitor on the cached stylesheet
@@ -117,18 +118,22 @@ command -v aws >/dev/null    || fail "The AWS CLI isn't installed."
 aws sts get-caller-identity --profile "$PROFILE" >/dev/null 2>&1 \
   || fail "AWS profile '$PROFILE' doesn't work. Try: aws sts get-caller-identity --profile $PROFILE"
 
-# The private dependency now comes from GitHub Packages rather than a git
-# tag, so what the token needs is read:packages, not repo read. Same variable
-# name and same repo secret as before, deliberately: nothing for the operator
-# to re-create. The container receives it as NODE_AUTH_TOKEN, which is what
-# server/.npmrc expands.
-LLMS_READ_TOKEN="${LLMS_READ_TOKEN:-$(gh auth token 2>/dev/null || true)}"
-[[ -n "$LLMS_READ_TOKEN" ]] \
-  || fail "No LLMS_READ_TOKEN and 'gh auth token' gave nothing. @williambrendel/llms is private; the build cannot install it without read:packages."
+# The private dependencies come from GitHub Packages, so what the token needs
+# is read:packages, not repo read. The container receives it as
+# NODE_AUTH_TOKEN, which is what server/.npmrc expands.
+#
+# STACK_PACKAGES_TOKEN is the stack-wide name, one token for every library
+# rather than one per library. LLMS_READ_TOKEN is still accepted so a deploy
+# works before and after that secret exists, and `gh auth token` covers a
+# local run on a machine already signed in. Drop the middle fallback once the
+# repo secret has been renamed.
+PACKAGES_TOKEN="${STACK_PACKAGES_TOKEN:-${LLMS_READ_TOKEN:-$(gh auth token 2>/dev/null || true)}}"
+[[ -n "$PACKAGES_TOKEN" ]] \
+  || fail "No STACK_PACKAGES_TOKEN, no LLMS_READ_TOKEN, and 'gh auth token' gave nothing. The @williambrendel packages are private; the build cannot install them without read:packages."
 # Ask the registry itself, not the repo API: repo read and package read are
 # separate scopes, and a token with only the former used to pass this check
 # and then fail inside the container, where the error is far less obvious.
-curl -sfS -H "Authorization: Bearer $LLMS_READ_TOKEN" \
+curl -sfS -H "Authorization: Bearer $PACKAGES_TOKEN" \
   https://npm.pkg.github.com/@williambrendel%2fllms >/dev/null 2>&1 \
   || fail "That token cannot read @williambrendel/llms from GitHub Packages. It needs read:packages — check with: gh auth status"
 
@@ -160,8 +165,14 @@ echo "  bucket    $BUCKET"
 echo "  identity  $(aws sts get-caller-identity --profile "$PROFILE" --query Arn --output text)"
 
 # ── 2. The corpus matches its vectors ────────────────────────────────────
-step "corpus"
-( cd "$HERE" && npm run verify --silent ) || fail "Corpus is out of sync with its vectors. Run: npm --prefix server run ingest"
+step "test"
+# npm test, not just the corpus check: it is the same gate an unattended
+# dependency update is judged on, and a deploy should not be held to a lower
+# standard than a robot's dependency bump. Deterministic, no model calls —
+# imports resolve, corpus matches its vectors, the fifteen golden questions
+# retrieve what they recorded, all fourteen chips resolve.
+( cd "$HERE" && npm test --silent ) \
+  || fail "npm test failed. Run it directly to see which gate: npm --prefix server test"
 
 # ── 2b. The cache stamps match the files they claim ──────────────────────
 # A stale ?v= is invisible at deploy time and visible to every returning
@@ -196,7 +207,7 @@ docker run --rm --platform linux/arm64 -v "$WORK/server:/app" -w /app \
 
 docker run --rm --platform linux/arm64 \
   -v "$WORK/server:/app" -w /app \
-  -e NODE_AUTH_TOKEN="$LLMS_READ_TOKEN" \
+  -e NODE_AUTH_TOKEN="$PACKAGES_TOKEN" \
   "$NODE_IMAGE" \
   bash -c '
     set -euo pipefail

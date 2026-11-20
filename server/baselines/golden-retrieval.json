@@ -1,0 +1,689 @@
+{
+  "what did you do at Snap?": {
+    "rows": [
+      {
+        "documentId": "stories|leaving_big_tech_for_heali",
+        "score": 0.9059
+      },
+      {
+        "documentId": "stories|snap_beauty_score_filter",
+        "score": 0.9059
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.8886
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.8598
+      },
+      {
+        "documentId": "stories|how_i_became_a_pm",
+        "score": 0.8563
+      },
+      {
+        "documentId": "background|summary",
+        "score": 0.8353
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.8248
+      },
+      {
+        "documentId": "stories|leaving_big_tech_for_heali",
+        "score": 0.8205
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.8188
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.8141
+      },
+      {
+        "documentId": "background|press_and_interviews",
+        "score": 0.8095
+      },
+      {
+        "documentId": "stories|snap_beauty_score_filter",
+        "score": 0.7937
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "career|snap"
+  },
+  "tell me about iScribeHealth": {
+    "rows": [
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.9005
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.8233
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.8196
+      },
+      {
+        "documentId": "perspective|customer_centricity",
+        "score": 0.8196
+      },
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.8067
+      },
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.8015
+      },
+      {
+        "documentId": "stories|iscribe_tech_debt_tradeoff",
+        "score": 0.7987
+      },
+      {
+        "documentId": "background|summary",
+        "score": 0.7956
+      },
+      {
+        "documentId": "perspective|how_i_see_myself",
+        "score": 0.7956
+      },
+      {
+        "documentId": "stories|iscribe_wrong_crowd_to_convince",
+        "score": 0.7785
+      },
+      {
+        "documentId": "stories|iscribe_azure_or_aws",
+        "score": 0.7694
+      },
+      {
+        "documentId": "stories|iscribe_turnaround",
+        "score": 0.7647
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "career|iscribehealth"
+  },
+  "what did you build at Amazon?": {
+    "rows": [
+      {
+        "documentId": "career|amazon_a9",
+        "score": 0.8688
+      },
+      {
+        "documentId": "career|amazon_a9",
+        "score": 0.8594
+      },
+      {
+        "documentId": "career|amazon_a9",
+        "score": 0.8531
+      },
+      {
+        "documentId": "career|amazon_a9",
+        "score": 0.8379
+      },
+      {
+        "documentId": "background|summary",
+        "score": 0.8249
+      },
+      {
+        "documentId": "stories|how_i_became_a_pm",
+        "score": 0.8131
+      },
+      {
+        "documentId": "background|this_page",
+        "score": 0.7587
+      },
+      {
+        "documentId": "background|this_page",
+        "score": 0.7569
+      },
+      {
+        "documentId": "career|google_youtube",
+        "score": 0.7494
+      },
+      {
+        "documentId": "career|google_youtube",
+        "score": 0.7494
+      },
+      {
+        "documentId": "stories|apple_offer_and_google",
+        "score": 0.748
+      },
+      {
+        "documentId": "career|crossroads_venture_studio",
+        "score": 0.7477
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "career|amazon_a9"
+  },
+  "tell me about your PhD": {
+    "rows": [
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.8362
+      },
+      {
+        "documentId": "background|education_and_research",
+        "score": 0.806
+      },
+      {
+        "documentId": "background|book",
+        "score": 0.8039
+      },
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.794
+      },
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.7879
+      },
+      {
+        "documentId": "background|education_and_research",
+        "score": 0.779
+      },
+      {
+        "documentId": "background|education_and_research",
+        "score": 0.779
+      },
+      {
+        "documentId": "background|personal_background",
+        "score": 0.779
+      },
+      {
+        "documentId": "career|laika_studios",
+        "score": 0.7686
+      },
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.7594
+      },
+      {
+        "documentId": "stories|told_id_never_make_it",
+        "score": 0.7317
+      },
+      {
+        "documentId": "background|summary",
+        "score": 0.7292
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "background|education_and_research"
+  },
+  "how do you handle disagreement with your team?": {
+    "rows": [
+      {
+        "documentId": "stories|snap_beauty_score_filter",
+        "score": 0.9655
+      },
+      {
+        "documentId": "stories|youtube_shipping_past_politics",
+        "score": 0.866
+      },
+      {
+        "documentId": "stories|youtube_shipping_past_politics",
+        "score": 0.866
+      },
+      {
+        "documentId": "stories|youtube_shipping_past_politics",
+        "score": 0.866
+      },
+      {
+        "documentId": "stories|youtube_shipping_past_politics",
+        "score": 0.866
+      },
+      {
+        "documentId": "stories|onboarding_my_own_director",
+        "score": 0.8156
+      },
+      {
+        "documentId": "perspective|ai_adoption",
+        "score": 0.8088
+      },
+      {
+        "documentId": "stories|snap_beauty_score_filter",
+        "score": 0.7711
+      },
+      {
+        "documentId": "stories|snap_beauty_score_filter",
+        "score": 0.7691
+      },
+      {
+        "documentId": "stories|how_i_became_a_pm",
+        "score": 0.768
+      },
+      {
+        "documentId": "perspective|no_room_for_toxicity",
+        "score": 0.7592
+      },
+      {
+        "documentId": "perspective|how_i_run_teams",
+        "score": 0.7473
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "stories|snap_beauty_score_filter"
+  },
+  "tell me about a time you failed": {
+    "rows": [
+      {
+        "documentId": "career|inovexus",
+        "score": 0.92
+      },
+      {
+        "documentId": "career|inovexus",
+        "score": 0.92
+      },
+      {
+        "documentId": "perspective|diversity_and_inclusion",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|apple_offer_and_google",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|heali_launch_that_kept_slipping",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|heali_launch_that_kept_slipping",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|heali_overbuilt_before_validating",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|heali_overbuilt_before_validating",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|iscribe_wrong_crowd_to_convince",
+        "score": 0.92
+      },
+      {
+        "documentId": "stories|iscribe_wrong_crowd_to_convince",
+        "score": 0.92
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "stories|heali_overbuilt_before_validating"
+  },
+  "how big was your team at Heali?": {
+    "rows": [
+      {
+        "documentId": "career|heali_ai",
+        "score": 0.9689
+      },
+      {
+        "documentId": "stories|heali_early_team",
+        "score": 0.9194
+      },
+      {
+        "documentId": "career|heali_ai",
+        "score": 0.8613
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.8358
+      },
+      {
+        "documentId": "background|press_and_interviews",
+        "score": 0.8269
+      },
+      {
+        "documentId": "background|skills",
+        "score": 0.8213
+      },
+      {
+        "documentId": "career|snap",
+        "score": 0.821
+      },
+      {
+        "documentId": "career|heali_ai",
+        "score": 0.8173
+      },
+      {
+        "documentId": "stories|told_id_never_make_it",
+        "score": 0.8172
+      },
+      {
+        "documentId": "logistics|what_im_looking_for",
+        "score": 0.8156
+      },
+      {
+        "documentId": "stories|iscribe_outage_night",
+        "score": 0.8111
+      },
+      {
+        "documentId": "stories|heali_early_team",
+        "score": 0.8085
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "stories|heali_early_team"
+  },
+  "how can I get in touch?": {
+    "rows": [
+      {
+        "documentId": "logistics|contact_and_links",
+        "score": 0.823
+      },
+      {
+        "documentId": "logistics|contact_and_links",
+        "score": 0.8202
+      },
+      {
+        "documentId": "background|press_and_interviews",
+        "score": 0.7699
+      },
+      {
+        "documentId": "background|press_and_interviews",
+        "score": 0.7602
+      },
+      {
+        "documentId": "logistics|contact_and_links",
+        "score": 0.7271
+      },
+      {
+        "documentId": "logistics|contact_and_links",
+        "score": 0.7133
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "logistics|contact_and_links"
+  },
+  "what are you looking for in a role?": {
+    "rows": [
+      {
+        "documentId": "logistics|what_im_looking_for",
+        "score": 0.9157
+      },
+      {
+        "documentId": "logistics|what_im_looking_for",
+        "score": 0.8525
+      },
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.8525
+      },
+      {
+        "documentId": "perspective|how_i_see_myself",
+        "score": 0.8477
+      },
+      {
+        "documentId": "logistics|questions_i_ask",
+        "score": 0.8268
+      },
+      {
+        "documentId": "career|google_youtube",
+        "score": 0.8173
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.8105
+      },
+      {
+        "documentId": "logistics|questions_i_ask",
+        "score": 0.8031
+      },
+      {
+        "documentId": "stories|leaving_big_tech_for_heali",
+        "score": 0.8028
+      },
+      {
+        "documentId": "stories|leaving_big_tech_for_heali",
+        "score": 0.7972
+      },
+      {
+        "documentId": "background|demographics_and_eligibility",
+        "score": 0.7801
+      },
+      {
+        "documentId": "stories|how_i_became_a_pm",
+        "score": 0.7767
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "logistics|what_im_looking_for"
+  },
+  "why did you leave iScribeHealth?": {
+    "rows": [
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.9694
+      },
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.9694
+      },
+      {
+        "documentId": "logistics|why_i_left_iscribehealth",
+        "score": 0.856
+      },
+      {
+        "documentId": "stories|iscribe_azure_or_aws",
+        "score": 0.7905
+      },
+      {
+        "documentId": "stories|iscribe_azure_or_aws",
+        "score": 0.7759
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.7706
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.7661
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.7644
+      },
+      {
+        "documentId": "stories|iscribe_azure_or_aws",
+        "score": 0.7608
+      },
+      {
+        "documentId": "stories|iscribe_tech_debt_tradeoff",
+        "score": 0.7602
+      },
+      {
+        "documentId": "stories|iscribe_outage_night",
+        "score": 0.7519
+      },
+      {
+        "documentId": "stories|iscribe_turnaround",
+        "score": 0.7489
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "logistics|why_i_left_iscribehealth"
+  },
+  "what's your favorite book?": {
+    "rows": [
+      {
+        "documentId": "perspective|influences",
+        "score": 0.9278
+      },
+      {
+        "documentId": "perspective|influences",
+        "score": 0.7301
+      },
+      {
+        "documentId": "background|book",
+        "score": 0.7158
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "perspective|influences"
+  },
+  "how do you feel about firing people?": {
+    "rows": [
+      {
+        "documentId": "perspective|firing_and_accountability",
+        "score": 0.9454
+      },
+      {
+        "documentId": "perspective|firing_and_accountability",
+        "score": 0.8222
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.7804
+      },
+      {
+        "documentId": "perspective|growing_people",
+        "score": 0.7763
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.7711
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.7651
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.7602
+      },
+      {
+        "documentId": "perspective|firing_and_accountability",
+        "score": 0.7486
+      },
+      {
+        "documentId": "stories|heali_letting_someone_go",
+        "score": 0.7332
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "perspective|firing_and_accountability"
+  },
+  "what would you do in your first 90 days?": {
+    "rows": [
+      {
+        "documentId": "perspective|first_90_days",
+        "score": 0.9576
+      },
+      {
+        "documentId": "perspective|first_90_days",
+        "score": 0.8103
+      },
+      {
+        "documentId": "stories|onboarding_my_own_director",
+        "score": 0.7148
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "perspective|first_90_days"
+  },
+  "thoughts on an 80 hour work week?": {
+    "rows": [
+      {
+        "documentId": "perspective|work_hours",
+        "score": 0.869
+      },
+      {
+        "documentId": "perspective|work_hours",
+        "score": 0.8478
+      },
+      {
+        "documentId": "perspective|work_hours",
+        "score": 0.8212
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "perspective|work_hours"
+  },
+  "where do you see healthcare AI going?": {
+    "rows": [
+      {
+        "documentId": "perspective|future_of_healthcare_ai",
+        "score": 0.9194
+      },
+      {
+        "documentId": "logistics|intro",
+        "score": 0.8157
+      },
+      {
+        "documentId": "perspective|future_of_healthcare_ai",
+        "score": 0.8008
+      },
+      {
+        "documentId": "perspective|future_of_healthcare_ai",
+        "score": 0.782
+      },
+      {
+        "documentId": "perspective|ai_for_good",
+        "score": 0.7812
+      },
+      {
+        "documentId": "logistics|what_im_looking_for",
+        "score": 0.7776
+      },
+      {
+        "documentId": "career|iscribehealth",
+        "score": 0.7614
+      },
+      {
+        "documentId": "stories|how_i_ended_up_in_ai",
+        "score": 0.7565
+      },
+      {
+        "documentId": "background|book",
+        "score": 0.738
+      },
+      {
+        "documentId": "career|heali_ai",
+        "score": 0.732
+      },
+      {
+        "documentId": "perspective|ai_for_good",
+        "score": 0.7046
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": "perspective|future_of_healthcare_ai"
+  },
+  "what's the capital of France?": {
+    "rows": [],
+    "skippedSegments": 0,
+    "mustInclude": null
+  },
+  "write me a poem about cats": {
+    "rows": [],
+    "skippedSegments": 0,
+    "mustInclude": null
+  },
+  "what is 2 + 2?": {
+    "rows": [
+      {
+        "documentId": "background|skills",
+        "score": 0.7171
+      }
+    ],
+    "skippedSegments": 0,
+    "mustInclude": null
+  },
+  "what's the weather today?": {
+    "rows": [],
+    "skippedSegments": 1,
+    "mustInclude": null
+  }
+}

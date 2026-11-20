@@ -64,21 +64,31 @@ jobs:
       # need, and the script that did it, are gone with the git dependency —
       # `grep git+ssh server/package-lock.json` now finds nothing.
       #
-      # Same secret as before, so there is nothing for the operator to
-      # re-create; what it needs is read:packages rather than repo read.
+      # STACK_PACKAGES_TOKEN is the stack-wide secret: one read:packages
+      # token for every library rather than one per library. LLMS_READ_TOKEN
+      # is kept as a fallback so this workflow runs before and after the
+      # rename; drop it once the new secret exists. An unset secret
+      # interpolates to an empty string, so `||` picks the one that is there.
       - name: Install
         working-directory: server
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.LLMS_READ_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.STACK_PACKAGES_TOKEN || secrets.LLMS_READ_TOKEN }}
         run: npm ci
 
-      # Refuse to ship a corpus whose vectors no longer match its markdown.
-      # Section ranges are byte offsets, so a stale pairing does not error at
-      # runtime — it quietly returns misaligned text and invites the model to
-      # fabricate across the gaps. Cheaper to fail here.
-      - name: Verify the corpus matches its vectors
+      # `npm test` is the gate an unattended dependency update is judged on,
+      # so a deploy runs exactly the same thing rather than a subset. It is
+      # deterministic and makes no model calls: every stack-library import
+      # resolves, the corpus vectors match their markdown, the fifteen golden
+      # questions retrieve what they recorded, and all fourteen chips still
+      # resolve to corpus sections.
+      #
+      # The corpus check matters most and is the reason this runs before the
+      # tarball is built. Section ranges are byte offsets, so a stale pairing
+      # does not error at runtime — it quietly returns misaligned text and
+      # invites the model to fabricate across the gaps.
+      - name: Test
         working-directory: server
-        run: npm run verify
+        run: npm test
 
       # A stale ?v= stamp is invisible here and visible to every returning
       # visitor, who keeps the cached stylesheet because the URL never moved.
