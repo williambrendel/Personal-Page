@@ -33,7 +33,7 @@
   "author": "William Brendel",
   "license": "MIT",
   "dependencies": {
-    "@williambrendel/llms": "~2.3.2",
+    "@williambrendel/llms": "~2.4.2",
     "@williambrendel/utils": "^1.13.0",
     "cors": "^2.8.5",
     "dotenv": "^18.0.10",
