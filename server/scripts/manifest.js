@@ -12,137 +12,37 @@
  * gap. No error anywhere in the stack.
  *
  * Written by ingest, verified at engine boot.
- */
-
-import fs     from "node:fs/promises";
-import path   from "node:path";
-import crypto from "node:crypto";
-
-import CONFIG           from "../config.js";
-import deriveDocumentId from "@williambrendel/llms/src/utilities/deriveDocumentId.js";
-import { getFilenames, readJson, writeJson } from "@williambrendel/utils/io";
-
-const MANIFEST_PATH = path.join(CONFIG.DATASET, "manifest.json");
-
-const sha256 = (text) => crypto.createHash("sha256").update(text, "utf8").digest("hex");
-
-// The corpus files, sorted. This replaced a local recursive readdir — one of
-// three identical copies in this repo — and the sort is the improvement:
-// the old walk returned filesystem order, so the manifest's key order was
-// whatever the filesystem happened to give. It matched sorted order here, so
-// nothing moved, but it was never guaranteed to.
-const walk = (dir) => getFilenames(dir, { extensions: [".md"] });
-
-/** Build the manifest from what's on disk right now. */
-const build = async () => {
-  const files = walk(CONFIG.MARKDOWNS);
-  const documents = {};
-  for (const file of files) {
-    documents[deriveDocumentId(file)] = sha256(await fs.readFile(file, "utf8"));
-  }
-  return { generatedAt: new Date().toISOString(), documents };
-};
-
-/**
- * Write the manifest.
  *
- * `built` is `{documentId: markdownText}` for the documents this run
- * actually built, and passing it is what makes the guard honest.
+ *   npm run manifest            write it from what is on disk
+ *   npm run verify              check it, exit 1 on a mismatch
  *
- * Without it, write() re-reads every file from disk at the moment it is
- * called — which is the END of an ingest, long after the text each .bin was
- * built from was read at the START. Edit a markdown file while a long
- * ingest is running and the manifest records the new hash against a .bin
- * built from the old text: the two disagree, and verify says OK. That is
- * precisely the drift this file exists to catch, and it had a hole in it
- * exactly the width of one ingest. Observed, not theorised — a 52-document
- * run, one file edited part-way through, and a clean bill of health.
+ * ── The implementation lives in llms now ────────────────────────────────
  *
- * So the caller hands over the text it built from. Documents this run did
- * not touch keep whatever the previous manifest said about them, because
- * their .bin is likewise untouched; re-reading those from disk would
- * reintroduce the same lie for any file edited since.
+ * `pipelines/rag/manifest` is this code, extracted. This file is the binding:
+ * it supplies this corpus's paths and keeps the two entry points the rest of
+ * the app already uses — a default export with `verify()` and `write(built)`,
+ * and the CLI.
+ *
+ * Checked against the implementation it replaced, on this corpus: the same 61
+ * documents with the same hashes, in the same key order, and `verify()`
+ * returning the same shape. The library's `write(built)` takes the same
+ * documentId→markdown map `ingest.js` passes it, which matters because ingest
+ * records the text each `.bin` was actually built from rather than whatever is
+ * on disk when a multi-minute run finishes.
  */
-const write = async (built = null) => {
-  if (!built) {
-    const manifest = await build();
-    await writeJson(MANIFEST_PATH, manifest);
-    return manifest;
-  }
+import CONFIG from "../config.js";
+import createManifest, { cli } from "@williambrendel/llms/src/pipelines/rag/manifest.js";
 
-  let previous = {};
-  try {
-    previous = (await readJson(MANIFEST_PATH)).documents || {};
-  } catch { /* no manifest yet: this run is all there is */ }
+const manifest = createManifest({
+  markdowns: CONFIG.MARKDOWNS,
+  dataset:   CONFIG.DATASET,
+});
 
-  const documents = { ...previous };
-  for (const [documentId, markdown] of Object.entries(built)) {
-    documents[documentId] = sha256(markdown);
-  }
-
-  // A document whose markdown is gone should not linger in the manifest as
-  // a hash nothing can match; verify() reports those as `missing`, and the
-  // noise would outlive the file by every future ingest.
-  // `.map(deriveDocumentId)` would hand it the array index as a second
-  // argument, which it reads as a theme override and rejects.
-  const onDisk = new Set(walk(CONFIG.MARKDOWNS).map(f => deriveDocumentId(f)));
-  for (const documentId of Object.keys(documents)) {
-    if (!onDisk.has(documentId)) delete documents[documentId];
-  }
-
-  const manifest = { generatedAt: new Date().toISOString(), documents };
-  await writeJson(MANIFEST_PATH, manifest);
-  return manifest;
-};
-
-/**
- * Compare on-disk markdown against the manifest.
- * @returns {Promise<{ok: boolean, reason?: string, stale: string[], missing: string[], untracked: string[]}>}
- */
-const verify = async () => {
-  let recorded;
-  try {
-    recorded = (await readJson(MANIFEST_PATH)).documents;
-  } catch {
-    return { ok: false, reason: "no manifest", stale: [], missing: [], untracked: [] };
-  }
-
-  const current = (await build()).documents;
-  const stale     = [];  // markdown changed since the .bin was built
-  const missing   = [];  // manifest knows it, markdown is gone
-  const untracked = [];  // markdown exists, never ingested
-
-  for (const [id, hash] of Object.entries(recorded)) {
-    if (!(id in current)) missing.push(id);
-    else if (current[id] !== hash) stale.push(id);
-  }
-  for (const id of Object.keys(current)) {
-    if (!(id in recorded)) untracked.push(id);
-  }
-
-  return {
-    ok: stale.length === 0 && missing.length === 0 && untracked.length === 0,
-    stale, missing, untracked,
-  };
-};
-
-export default Object.freeze({ build, write, verify, MANIFEST_PATH });
+export default manifest;
 
 // Run directly: `node scripts/manifest.js` writes, `--verify` checks.
+// The library's cli prints the same lines this used to and sets the same exit
+// code, so `npm run verify` and ship.sh's gate are unchanged.
 if (process.argv[1] === import.meta.filename) {
-  (async () => {
-    if (process.argv.includes("--verify")) {
-      const r = await verify();
-      if (r.ok) return console.log("corpus manifest: OK — bins match markdown");
-      console.error("corpus manifest: MISMATCH");
-      if (r.reason)            console.error(`  ${r.reason}`);
-      for (const id of r.stale)     console.error(`  stale (markdown edited since ingest): ${id}`);
-      for (const id of r.missing)   console.error(`  missing markdown: ${id}`);
-      for (const id of r.untracked) console.error(`  never ingested: ${id}`);
-      console.error("\n  Run: npm run ingest");
-      process.exit(1);
-    }
-    const m = await write();
-    console.log(`corpus manifest written — ${Object.keys(m.documents).length} documents`);
-  })();
+  cli(manifest, { fix: "npm run ingest" });
 }

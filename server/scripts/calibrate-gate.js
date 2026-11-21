@@ -27,7 +27,7 @@ import SectionResolver from "@williambrendel/llms/src/actions/query/SectionResol
 import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/index.js";
 import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
 import { retrieve }     from "@williambrendel/llms/src/actions/query/index.js";
-import gate            from "@williambrendel/llms/src/pipelines/rag/query/gate.js";
+import { calibrateGate, formatCalibration } from "@williambrendel/llms/src/eval/gate.js";
 
 /** Questions this corpus genuinely covers — drawn from what it actually contains. */
 const ANSWERABLE = [
@@ -87,53 +87,26 @@ const main = async () => {
   const analyze = await buildAnalyze({ store, ...CONFIG.CLASSIFIER });
   const floor = CONFIG.RETRIEVAL?.floor ?? 0;
 
-  /**
-   * Top resolvable score for a query, as the engine actually retrieves it.
-   *
-   * This used to claim it was "mirroring what runQuery retrieves" while
-   * doing something different: it dropped every segment classified
-   * CONVERSATIONAL, where the server skips one only when the classifier was
-   * confident (CONVERSATIONAL >= 0.7). It now calls the engine's own
-   * `retrieve`, so there is nothing left to mirror.
-   *
-   * This mattered most here, and quietly. Three of the four off-topic
-   * probes are single CONVERSATIONAL segments scoring 0.518 to 0.593 — below
-   * the skip threshold, so the server searches them. The old filter dropped
-   * all of them, hit `!segs.length`, and returned 0. Every off-topic score
-   * in this calibration was therefore a literal zero, and goodScore — which
-   * is meant to sit just above the highest off-topic score — was derived
-   * from a distribution that did not exist.
-   */
-  const topScore = async (q) => {
-    const a = await analyze(q);
-    const { results } = await retrieve({
-      analysis: a,
-      store,
-      resolver,
-      searchOptions: { floor },
-    });
-    return results.length ? results[0].score : 0;
-  };
+  // The engine's own retrieval, so the scores are the ones production sees.
+  // This script used to re-implement it and drop every CONVERSATIONAL
+  // segment, which made every off-topic score a literal 0.000 — the gate was
+  // being calibrated against a distribution that did not exist. See
+  // baselines/step-8-eval-segment-filter.md.
+  const retrieveOne = async (query, { searchOptions } = {}) => retrieve({
+    analysis: await analyze(query),
+    store,
+    resolver,
+    searchOptions,
+  });
 
-  const answerable = [];
-  const offTopic = [];
-  for (const q of ANSWERABLE) answerable.push(await topScore(q));
-  for (const q of OFF_TOPIC)  offTopic.push(await topScore(q));
+  const calibration = await calibrateGate({
+    answerable: ANSWERABLE,
+    offTopic:   OFF_TOPIC,
+    retrieve:   retrieveOne,
+    floor,
+  });
 
-  const fmt = (xs) => xs.map(x => x.toFixed(3)).sort().join(" ");
-  console.log(`\n  ${store.length} documents, retrieval floor ${floor}\n`);
-  console.log(`  answerable (${answerable.length}): ${fmt(answerable)}`);
-  console.log(`  off-topic  (${offTopic.length}): ${fmt(offTopic)}\n`);
-
-  const result = gate.calibrate({ answerable, offTopic });
-
-  console.log("  gate.calibrate says:");
-  console.log(`    minScore           ${result.minScore}      (shipped default ${gate.DEFAULTS.minScore})`);
-  console.log(`    goodScore          ${result.goodScore}      (shipped default ${gate.DEFAULTS.goodScore})`);
-  console.log(`    answerable below min  ${(result.answerableBelowMin * 100).toFixed(0)}%  <- questions we would wrongly refuse`);
-  console.log(`    off-topic below min   ${(result.offTopicBelowMin * 100).toFixed(0)}%  <- refusals we would correctly make for free`);
-  console.log(`    answerable "good"     ${(result.answerableGood * 100).toFixed(0)}%  <- answered with no second pass`);
-  console.log(`    answerable middle     ${(result.answerableMiddle * 100).toFixed(0)}%  <- would take a second pass\n`);
+  console.log(formatCalibration({ documents: store.length, ...calibration }));
 };
 
 main().catch(e => { console.error(e); process.exit(1); });

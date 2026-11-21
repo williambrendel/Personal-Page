@@ -8,12 +8,28 @@
  *   hit@1 / hit@3  — did the expected document rank first / in the top three
  *   rows           — mean rows returned for on-topic queries (context cost)
  *   offtopic       — share of off-topic queries correctly returning nothing
+ *   segs skipped   — segments the server skips as confident CONVERSATIONAL
  *
- * Pick the highest floor that holds hit@3, since rows fall and off-topic
- * precision rises monotonically with it.
+ * The sweep itself is llms' `eval/floor`. What stays here is the query set,
+ * the floors worth trying, and how this app retrieves.
+ *
+ * ── Reading the output ──────────────────────────────────────────────────
+ *
+ * Production uses 0.70 (`CONFIG.RETRIEVAL.floor`), and that choice was made
+ * explicitly rather than inherited — see baselines/step-8-eval-segment-filter.md.
+ * On this golden set 0.74 looks strictly better (same hit@1 and hit@3, one row
+ * less context, no off-topic leak) and is still the wrong change: the one leak
+ * at 0.70 is "what is 2 + 2?" retrieving one row at 0.717, which the gate's
+ * 0.755 minScore already rejects, and hit@3 being equal across the two only
+ * says that none of *these fifteen* questions has its only good section
+ * between them. A real visitor's phrasing might, and raising the floor would
+ * send that question to the no-coverage path.
+ *
+ * The off-topic column is only meaningful because retrieval goes through the
+ * engine's own `retrieve`. These scripts used to drop every CONVERSATIONAL
+ * segment, so off-topic questions were never searched and the column read
+ * 100% at every floor.
  */
-
-
 import CONFIG          from "../config.js";
 
 // AFTER config: config sets XENOVA_CACHE_DIR, which this reads to locate
@@ -25,6 +41,7 @@ import buildAnalyze    from "@williambrendel/llms/src/xenova/buildAnalyzeQuery/i
 import prewarm         from "@williambrendel/llms/src/xenova/prewarm.js";
 import { retrieve }     from "@williambrendel/llms/src/actions/query/index.js";
 import { MAX_OUTPUT_ROWS } from "@williambrendel/llms/src/VectorStore/constants.js";
+import { sweepFloor, formatFloorSweep } from "@williambrendel/llms/src/eval/floor.js";
 
 // expected === null means "should retrieve nothing".
 const GOLDEN = [
@@ -60,63 +77,23 @@ const main = async () => {
   ]);
   const analyze = await buildAnalyze({ store, ...CONFIG.CLASSIFIER });
 
-  // Analyze once — the analysis is floor-independent, so this keeps the
-  // sweep measuring retrieval rather than re-embedding 19 queries per floor.
-  const analyzed = [];
-  for (const [q, expected] of GOLDEN) {
-    const a = await analyze(q);
-    analyzed.push({ q, expected, a });
-  }
+  // Analyze once per query and reuse it across floors: the analysis is
+  // floor-independent, so this keeps the sweep measuring retrieval rather
+  // than re-embedding the same questions eight times.
+  const analyzed = new Map();
+  for (const [q] of GOLDEN) analyzed.set(q, await analyze(q));
 
-  console.log(`\n${store.length} documents.  ${GOLDEN.filter(g => g[1]).length} on-topic, ` +
-              `${GOLDEN.filter(g => !g[1]).length} off-topic.\n`);
-  console.log("  floor   hit@1   hit@3    rows   offtopic-clean   segs skipped");
-  console.log("  " + "-".repeat(62));
+  const retrieveOne = (query, { searchOptions } = {}) => retrieve({
+    analysis: analyzed.get(query),
+    store,
+    resolver,
+    searchOptions,
+    maxOutputRows: MAX_OUTPUT_ROWS,
+  });
 
-  for (const floor of FLOORS) {
-    let h1 = 0, h3 = 0, onTopic = 0, rowSum = 0, offClean = 0, offTotal = 0;
-    let skippedTotal = 0;
+  const rows = await sweepFloor({ queries: GOLDEN, retrieve: retrieveOne, floors: FLOORS });
 
-    for (const { expected, a } of analyzed) {
-      // The engine's own retrieval, not a copy of it.
-      //
-      // This used to re-implement search + unionHits + resolve, and dropped
-      // every segment classified CONVERSATIONAL. The server does not: it
-      // skips one only when the classifier was confident
-      // (CONVERSATIONAL >= 0.7), and searches a weak win defensively in case
-      // a TECHNICAL segment was misread. On this golden set the two rules
-      // disagree about exactly the three off-topic queries, whose
-      // CONVERSATIONAL scores are 0.518, 0.535 and 0.593 — so the old
-      // offtopic-clean column reported that off-topic questions retrieve
-      // nothing, having never searched them.
-      const { results: top, skipped } = await retrieve({
-        analysis: a,
-        store,
-        resolver,
-        searchOptions: { floor },
-        maxOutputRows: MAX_OUTPUT_ROWS,
-      });
-      skippedTotal += skipped.length;
-
-      if (expected === null) {
-        offTotal++;
-        if (top.length === 0) offClean++;
-      } else {
-        onTopic++;
-        rowSum += top.length;
-        if (top[0]?.documentId === expected) h1++;
-        if (top.slice(0, 3).some(r => r.documentId === expected)) h3++;
-      }
-    }
-
-    const pct = (n, d) => d ? `${Math.round(100 * n / d)}%`.padStart(4) : "  — ";
-    console.log(
-      `  ${floor.toFixed(2)}    ${pct(h1, onTopic)}    ${pct(h3, onTopic)}   ` +
-      `${(rowSum / onTopic).toFixed(1).padStart(5)}   ${pct(offClean, offTotal)}` +
-      `        ${String(skippedTotal).padStart(5)}`
-    );
-  }
-  console.log();
+  console.log(formatFloorSweep({ documents: store.length, queries: GOLDEN, rows }));
 };
 
 main().catch(e => { console.error(e); process.exit(1); });
