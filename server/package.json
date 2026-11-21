@@ -34,6 +34,8 @@
   "license": "MIT",
   "dependencies": {
     "@williambrendel/llms": "~2.4.2",
+    "@williambrendel/markdown": "^0.1.2",
+    "@williambrendel/pwa": "^0.4.0",
     "@williambrendel/utils": "^1.13.0",
     "cors": "^2.8.5",
     "dotenv": "^18.0.10",

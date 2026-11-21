@@ -26,152 +26,47 @@
  * 2026-11-19 css/common.css and css/thinking-loader.css were found carrying
  * stamps for contents they no longer had, so every returning visitor kept
  * the cached stylesheet — the exact failure the paragraph above describes,
- * recurring because nothing checked. ship.sh now runs this in preflight
- * alongside the corpus manifest, so a stale stamp stops a deploy instead of
- * reaching visitors.
+ * recurring because nothing checked. ship.sh runs this in preflight
+ * alongside npm test, so a stale stamp stops a deploy instead of reaching
+ * visitors.
+ *
+ * ── The implementation is pwa's `stampRefs` now ─────────────────────────
+ *
+ * This file is the binding: it points the stamper at the site root and keeps
+ * the wording the operator reads, since the library's "Run: pwa stamp" is
+ * not the command this repo uses.
+ *
+ * Checked before switching: pwa's stamper run in verify mode against the
+ * stamps this repo had already committed reported zero stale, so its hashing
+ * and its walk over HTML, CSS @import and JS import agree with the
+ * implementation it replaced on every reference the site has.
  */
-
-import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
+import { stampRefs } from "@williambrendel/pwa/build";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
-const HTML = path.join(ROOT, "index.html");
-
 const VERIFY = process.argv.includes("--verify");
 
-/**
- * In --verify mode every write goes to this map instead of the disk, and
- * every read prefers it. That way verification runs the *same* fixed-point
- * algorithm as a real stamping pass — a separate checker could disagree with
- * the stamper, which is the bug it is meant to catch.
- */
-const pending = new Map();
-const readText = (file) => pending.get(file) ?? fs.readFileSync(file, "utf8");
-const writeText = (file, text) => {
-  if (VERIFY) pending.set(file, text);
-  else fs.writeFileSync(file, text);
-};
+const result = stampRefs({ root: ROOT, verify: VERIFY });
 
-/** 8 hex characters: collision-proof enough for cache keys on one site. */
-const stampFor = (file) => crypto
-  .createHash("sha256")
-  .update(pending.has(file) ? Buffer.from(pending.get(file)) : fs.readFileSync(file))
-  .digest("hex")
-  .slice(0, 8);
+for (const m of result.missing) console.log(`  missing, left alone: ${m}`);
 
-/**
- * Stamp every local reference INSIDE css/ and scripts/ before the HTML.
- *
- * index.html points at two files, but each pulls in others the browser
- * fetches and caches on its own: css/index.css @imports common.css and
- * chat-input.css, and scripts/index.js imports the modules that do the
- * actual work. Stamping only the two entry points busts nothing that
- * matters — the layout and the behaviour both live one level down.
- *
- * A dependency's hash changes its dependant's contents, which changes that
- * file's hash, so this runs to a fixed point rather than in one pass. The
- * graph is small and acyclic; the cap is there so a cycle produces a
- * complaint instead of a hung build.
- */
-const LOCAL_REF = [
-  // @import "./common.css"
-  /(@import\s+")(\.\/[^"?]+\.css)(\?v=[0-9a-f]+)?(")/g,
-  // import "./x.js"  /  from "./x.js"
-  /((?:^|\s)(?:import|from)\s+")(\.\/[^"?]+\.js)(\?v=[0-9a-f]+)?(")/gm,
-];
-
-const sourceFiles = () => ["css", "scripts"].flatMap((dir) => {
-  const abs = path.join(ROOT, dir);
-  if (!fs.existsSync(abs)) return [];
-  return fs.readdirSync(abs)
-    .filter(f => /\.(css|js)$/.test(f))
-    .map(f => path.join(abs, f));
-});
-
-const stampDependencies = () => {
-  const files = sourceFiles();
-  const MAX_PASSES = 10;
-
-  for (let pass = 0; pass < MAX_PASSES; pass++) {
-    let changed = false;
-
-    for (const file of files) {
-      const text = readText(file);
-      let next = text;
-
-      for (const pattern of LOCAL_REF) {
-        next = next.replace(pattern, (whole, lead, rel, _old, tail) => {
-          const target = path.join(path.dirname(file), rel);
-          if (!fs.existsSync(target)) return whole;
-          return `${lead}${rel}?v=${stampFor(target)}${tail}`;
-        });
-      }
-
-      if (next !== text) {
-        writeText(file, next);
-        changed = true;
-      }
-    }
-
-    if (!changed) return pass;
-  }
-
-  console.warn(`  stopped after ${MAX_PASSES} passes — is there an import cycle?`);
-  return MAX_PASSES;
-};
-
-const main = () => {
-  const passes = stampDependencies();
-  if (passes) console.log(`Stamped local imports (${passes} pass(es)).`);
-  let html = readText(HTML);
-  const before = html;
-  const touched = [];
-
-  // Local css/… and scripts/… references only. Anything absolute belongs to
-  // somebody else's cache policy and is none of our business.
-  html = html.replace(
-    /((?:href|src)=")((?:css|scripts)\/[^"?]+)(\?v=[0-9a-f]+)?(")/g,
-    (_m, lead, rel, _old, tail) => {
-      const file = path.join(ROOT, rel);
-      if (!fs.existsSync(file)) {
-        console.warn(`  missing, left alone: ${rel}`);
-        return `${lead}${rel}${_old || ""}${tail}`;
-      }
-      const stamp = stampFor(file);
-      touched.push(`${rel}?v=${stamp}`);
-      return `${lead}${rel}?v=${stamp}${tail}`;
-    },
-  );
-
-  if (html !== before) writeText(HTML, html);
-
-  if (VERIFY) {
-    // Anything the algorithm wanted to write is a file whose stamps no
-    // longer match its contents.
-    const stale = [...pending.entries()]
-      .filter(([file, text]) => text !== fs.readFileSync(file, "utf8"))
-      .map(([file]) => path.relative(ROOT, file));
-
-    if (!stale.length) {
-      console.log("stamps: OK — every ?v= matches its file");
-      return;
-    }
+if (result.cycle) {
+  console.error("  stopped after the pass limit: is there an import cycle?");
+  process.exitCode = 1;
+} else if (VERIFY) {
+  if (result.stale.length) {
     console.error("stamps: STALE — these carry a hash for contents they no longer have:");
-    for (const f of stale) console.error(`  ${f}`);
+    for (const f of result.stale) console.error(`  ${f}`);
     console.error("\n  Returning visitors keep the cached version until the stamp moves.");
     console.error("  Run: npm --prefix server run stamp");
     process.exitCode = 1;
-    return;
+  } else {
+    console.log("stamps: OK — every ?v= matches its file");
   }
-
-  if (html === before) {
-    console.log("Already current — nothing to stamp.");
-    return;
-  }
-
-  console.log(`Stamped ${touched.length} reference(s) in index.html:`);
-  for (const t of touched) console.log(`  ${t}`);
-};
-
-main();
+} else if (result.changed.length) {
+  console.log(`Stamped ${result.changed.length} reference(s):`);
+  for (const f of result.changed) console.log(`  ${f}`);
+} else {
+  console.log("Already current: nothing to stamp.");
+}
