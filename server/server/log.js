@@ -24,75 +24,16 @@
  * and it is there whether or not a path is configured. The file is for
  * reading without root and for keeping a longer tail than the journal is
  * configured to hold.
- */
-
-import fs from "node:fs";
-import path from "node:path";
-
-/** Rotate at 8 MB. At ~300 bytes a line that is tens of thousands of
- *  questions, which on a personal page is years, and it bounds the disk at
- *  16 MB across the two files on an 8 GB volume. */
-const MAX_BYTES = 8 * 1024 * 1024;
-
-let stream = null;
-let streamPath = null;
-let written = 0;
-let warned = false;
-
-const open = (file) => {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  written = fs.existsSync(file) ? fs.statSync(file).size : 0;
-  stream = fs.createWriteStream(file, { flags: "a" });
-  // A failing log must never take the service with it.
-  stream.on("error", (err) => {
-    if (!warned) {
-      console.error(`query log (${file}) is not writable: ${err.message}`);
-      warned = true;
-    }
-    stream = null;
-  });
-  streamPath = file;
-};
-
-/** Keep one previous file. Older than that is not worth the disk. */
-const rotate = () => {
-  const file = streamPath;
-  try {
-    stream?.end();
-    fs.renameSync(file, `${file}.1`);
-  } catch { /* if rotation fails, reopening appends — better than throwing */ }
-  open(file);
-};
-
-/**
- * @param {object} entry  already-shaped record; see app.js for the fields
- * @param {string|null} file  CONFIG.QUERY_LOG
  *
- * Never throws. A log that can break a request is worse than no log.
+ * ── The implementation lives in llms now ────────────────────────────────
+ *
+ * `pipelines/answer/log` is this code, extracted. Its `logQuery(entry, file)`
+ * keeps this signature exactly, on one shared log per process, so every call
+ * site in app.js is unchanged.
+ *
+ * It also fixes something this had: on a write error this nulled `stream`
+ * unconditionally, so an error arriving from the OLD stream after a rotation
+ * discarded the new one and the file sink went quiet until the path changed.
+ * The library nulls it only if the erroring stream is still the current one.
  */
-const logQuery = (entry, file) => {
-  let line;
-  try {
-    line = JSON.stringify({ at: new Date().toISOString(), ...entry });
-  } catch {
-    return;
-  }
-
-  // stdout first, and unconditionally: this is the sink that always exists.
-  console.log(line);
-
-  if (!file) return;
-  try {
-    if (!stream || streamPath !== file) open(file);
-    if (written >= MAX_BYTES) rotate();
-    stream?.write(line + "\n");
-    written += line.length + 1;
-  } catch (err) {
-    if (!warned) {
-      console.error(`query log: ${err.message}`);
-      warned = true;
-    }
-  }
-};
-
-export { logQuery, MAX_BYTES };
+export { logQuery, MAX_BYTES } from "@williambrendel/llms/src/pipelines/answer/log.js";

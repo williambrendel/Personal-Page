@@ -17,139 +17,71 @@
  *      model's JSON is discarded inside the library before this server sees
  *      it. Changing that means a library release for four buttons.
  *
- *   2. It should not. This is a fixed four-way classification over the
- *      question, which an embedding answers for nothing: the model is
- *      already resident, the comparison is a dot product, and the result is
+ *   2. It should not. This is a fixed classification over the question,
+ *      which an embedding answers for nothing: the model is already
+ *      resident, the comparison is a dot product, and the result is
  *      deterministic and testable. Letting an LLM choose would add a thing
  *      that can be talked into choosing wrongly, for no gain over matching
  *      the question against a handful of phrasings.
  *
  * The anchors are embedded once at boot. Per request this costs one
  * vectorize call on the query — roughly 20ms — and no money.
- */
-
-import vectorize from "@williambrendel/llms/src/xenova/vectorize.js";
-
-/**
- * Phrasings for each destination. The whole question is matched against
- * these, so they are written as questions rather than keywords: "resume"
- * alone also sits inside "what's on your resume for 2019", which is a
- * question about his history, not a request for the file.
- */
-const ANCHORS = Object.freeze({
-  resume: [
-    "Can I see your resume?",
-    "Can I download your CV?",
-    "Where can I find your resume?",
-    "Do you have a CV I can look at?",
-  ],
-  linkedin: [
-    "What's your LinkedIn?",
-    "Where can I find your profile?",
-    "Do you have a LinkedIn page?",
-  ],
-  book: [
-    "Can we set up a call?",
-    "How do I book time with you?",
-    "Can I schedule a meeting with you?",
-    "Are you free to talk?",
-    "How can I get in touch with you?",
-  ],
-  share: [
-    "Can I share this page?",
-    "How do I send this to someone?",
-  ],
-  // The book answers are written as teasers — they say what the chapter
-  // argues and leave the evidence in it — so the one thing they must always
-  // offer is a way to go and read it. A link inside the prose does not
-  // survive: the answering model composes from the section and drops the
-  // trailing sentence often enough that an upsell resting on it is not an
-  // upsell. A button does not depend on the model saying anything.
-  thebook: [
-    "Where can I buy your book?",
-    "How do I get a copy of The AI Transformation?",
-    "Is your book on Amazon?",
-    "Have you written a book?",
-    "What's your chapter about?",
-    "Tell me about your book.",
-  ],
-});
-
-/**
- * How close the question has to sit to one of those phrasings.
  *
- * Measured, not picked — server/scripts/measure-actions.js prints the table.
- * The cost of the two errors is lopsided: a missing button leaves the page
- * exactly as it was before this file (the answer still says where the icons
- * are), while a button nobody asked for is clutter on an answer they did ask
- * for, and on a page whose whole point is restraint. So this sits above the
- * highest scoring near-miss rather than below the lowest true match.
+ * ── The implementation lives in llms now ────────────────────────────────
+ *
+ * `pipelines/answer/actions` is this code, extracted. The four contact
+ * destinations are the library's `CONTACT_ANCHORS` — none of them is about
+ * anyone in particular — and what stays here is the one destination that is
+ * about William: the book.
+ *
+ * The book answers are written as teasers — they say what the chapter argues
+ * and leave the evidence in it — so the one thing they must always offer is
+ * a way to go and read it. A link inside the prose does not survive: the
+ * answering model composes from the section and drops the trailing sentence
+ * often enough that an upsell resting on it is not an upsell. A button does
+ * not depend on the model saying anything.
+ *
+ * ── Why the swap is safe, measured rather than assumed ──────────────────
+ *
+ * The threshold has almost no room in it. On the 23-query set in
+ * scripts/measure-actions.js the lowest true match scores 0.783 and the
+ * highest near miss 0.769, so the whole decision margin is 0.014 wide —
+ * "I'd like to book 30 minutes" sits 0.003 above the line and "What's on
+ * your resume for 2019?" 0.011 below it. Anything that moved scores by a
+ * hundredth would change what visitors are offered.
+ *
+ * So all three inputs to the decision were compared before switching:
+ * the library's four anchor sets are byte-identical to the ones this file
+ * used to declare, its threshold is the same 0.78, and its cap is the same
+ * 2. The library sums with a four-accumulator dot product where this used a
+ * plain loop, which changes only the last bits: across 28 queries the
+ * largest score difference was 1.22e-15, thirteen orders of magnitude
+ * inside the margin, and no decision changed.
+ *
+ * It also fixes something this had: a failed `warm()` was cached forever, so
+ * one transient embedding failure at boot meant no buttons for the life of
+ * the process. The library does not cache the failure.
  */
-const SIMILAR = 0.78;
-
-/** At most two. Three buttons under an answer is a toolbar. */
-const MAX_ACTIONS = 2;
-
-const dot = (a, b) => {
-  let s = 0;
-  for (let i = 0; i < a.length; ++i) s += a[i] * b[i];
-  return s;
-};
-
-let anchorsPromise = null;
-
-/** Embed every anchor once. Idempotent; the first call does the work. */
-const warm = () => anchorsPromise || (anchorsPromise = (async () => {
-  const entries = [];
-  for (const [key, phrases] of Object.entries(ANCHORS)) {
-    for (const phrase of phrases) {
-      entries.push({ key, phrase, vector: await vectorize(phrase) });
-    }
-  }
-  return entries;
-})());
+import { createActions } from "@williambrendel/llms/src/pipelines/answer/actions.js";
 
 /**
- * @param {string} query
- * @returns {Promise<string[]>} destination keys, best first, at most two
- *
- * Never throws. A failure here must not cost the visitor their answer, which
- * has already been paid for — on any error the result is no buttons, which
- * is the page as it was.
+ * Phrasings for the book. Written as whole questions rather than keywords,
+ * for the reason the library's own anchors are: "resume" alone also sits
+ * inside "what's on your resume for 2019", which is a question about his
+ * history, not a request for the file.
  */
-const actionsFor = async (query) => {
-  if (typeof query !== "string" || !query.trim()) return [];
-  try {
-    const [anchors, q] = await Promise.all([warm(), vectorize(query)]);
+const THE_BOOK = Object.freeze([
+  "Where can I buy your book?",
+  "How do I get a copy of The AI Transformation?",
+  "Is your book on Amazon?",
+  "Have you written a book?",
+  "What's your chapter about?",
+  "Tell me about your book.",
+]);
 
-    // Best score per destination, so a key with more phrasings than another
-    // is not thereby more likely to win.
-    const best = new Map();
-    for (const { key, vector } of anchors) {
-      const score = dot(q, vector);
-      if (score > (best.get(key) ?? -1)) best.set(key, score);
-    }
-
-    return [...best.entries()]
-      .filter(([, score]) => score >= SIMILAR)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, MAX_ACTIONS)
-      .map(([key]) => key);
-  } catch (err) {
-    console.error("actionsFor:", err.message);
-    return [];
-  }
-};
-
-/** Scores for every destination, for the measurement script. */
-const scoresFor = async (query) => {
-  const [anchors, q] = await Promise.all([warm(), vectorize(query)]);
-  const best = new Map();
-  for (const { key, vector } of anchors) {
-    const score = dot(q, vector);
-    if (score > (best.get(key) ?? -1)) best.set(key, score);
-  }
-  return Object.fromEntries(best);
-};
+const {
+  actionsFor, scoresFor, warm,
+  anchors: ANCHORS, similar: SIMILAR, maxActions: MAX_ACTIONS,
+} = createActions({ extraAnchors: { thebook: THE_BOOK } });
 
 export { actionsFor, scoresFor, warm, ANCHORS, SIMILAR, MAX_ACTIONS };
